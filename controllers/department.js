@@ -1,0 +1,70 @@
+const { BadRequestError, NotFoundError } = require('../errors');
+const DepartmentModel = require('../model/departments');
+const { StatusCodes } = require('http-status-codes');
+
+const GetDepartments = async (req, res) => {
+  const { name } = req.query;
+  let queryObject = {};
+
+  if (name) {
+    queryObject.name = { $regex: name, $options: 'i' };
+  }
+
+  let findDepartment = await DepartmentModel.find(queryObject);
+
+  if (!findDepartment) {
+    throw new NotFoundError('No department found');
+  }
+
+  res
+    .status(StatusCodes.CREATED)
+    .json({ mesage: ` successfully`, data: findDepartment });
+};
+
+const CreateDepartment = async (req, res) => {
+  const { name } = req.body;
+
+  let findDepartment = await DepartmentModel.findOne({ name });
+
+  if (findDepartment && findDepartment._id) {
+    throw new BadRequestError(`${name} Department already exist`);
+  }
+
+  findDepartment = await DepartmentModel.create({
+    name,
+    createdBy: req.user.userId,
+  });
+
+  res
+    .status(StatusCodes.CREATED)
+    .json({ mesage: `${name} Department created successfully` });
+};
+
+const UpdateDepartment = async (req, res) => {
+  const { name } = req.body;
+  const { id } = req.params;
+
+  if (!id || !name) {
+    throw new BadRequestError('Please provide name');
+  }
+
+  let findDepartment = await DepartmentModel.findOne({ _id: id });
+
+  if (!findDepartment) {
+    throw new NotFoundError('No department found');
+  }
+
+  findDepartment = await DepartmentModel.findByIdAndUpdate(
+    { _id: findDepartment._id },
+    { name, modifyBy: req.user.userId },
+    { new: true }
+  );
+
+  res.status(StatusCodes.CREATED).json({ mesage: `Department updated` });
+};
+
+module.exports = {
+  CreateDepartment,
+  UpdateDepartment,
+  GetDepartments,
+};
