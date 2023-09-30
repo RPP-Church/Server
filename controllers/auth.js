@@ -54,7 +54,6 @@ const LoginAdmin = async (req, res) => {
   const token = user.CreateJWT();
   const refreshToken = user.RefreshJWT();
 
-  console.log(refreshToken, 'refreshToken');
   await AdminModel.findOneAndUpdate(
     { _id: user._id },
     { refreshToken },
