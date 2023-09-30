@@ -57,7 +57,7 @@ const GetUser = async (req, res) => {
 
   const result = await users;
 
-  res.status(StatusCodes.OK).json({ mesage: `sucessful`, data: result });
+  res.status(StatusCodes.OK).json(result);
 };
 
 const CreateUser = async (req, res) => {
