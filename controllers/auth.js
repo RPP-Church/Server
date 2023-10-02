@@ -1,7 +1,7 @@
 const { BadRequestError, UnauthenticatedError } = require('../errors');
 const AdminModel = require('../model/admin.js');
 const { StatusCodes } = require('http-status-codes');
-const cookie = require('cookie')
+const cookie = require('cookie');
 
 const CreateAdmin = async (req, res) => {
   const { name, email, password } = req.body;
@@ -23,13 +23,18 @@ const CreateAdmin = async (req, res) => {
     { new: true }
   );
 
+  res.setHeader(
+    'Set-Cookie',
+    cookie.serialize('foo', 'bar', { httpOnly: true })
+  );
   res.cookie('jwt', refreshToken, {
     httpOnly: true,
-    secure: true,
-    signed: true,
+    // secure: true,
+    // signed: true,
     maxAge: 24 * 60 * 60 * 1000,
   });
-  res.status(StatusCodes.CREATED).json({ name: admin.name, token });
+
+  res.status(StatusCodes.OK).json({ name: admin.name, token, refreshToken });
 };
 
 const LoginAdmin = async (req, res) => {

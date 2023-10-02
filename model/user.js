@@ -54,6 +54,10 @@ const User = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  dob: {
+    type: Date,
+    required: [true, 'Please enter Date of Birth'],
+  },
   role: {
     type: String,
     enum: ['User', 'Admin'],

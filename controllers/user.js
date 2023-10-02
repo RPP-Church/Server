@@ -14,6 +14,7 @@ const GetUser = async (req, res) => {
     membershipType,
     maritalStatus,
     sort,
+    dob,
   } = req.query;
 
   let queryObject = {};
@@ -44,15 +45,19 @@ const GetUser = async (req, res) => {
     queryObject.joinedDate = { $gte: fromDate, $lte: toDate };
   }
 
+  if (dob) {
+    queryObject.dob = dob;
+  }
+
   if (department) {
     queryObject.departments = department;
   }
   let users = UserModel.find(queryObject);
 
-  if (sort) {
-    users = users.sort([['joinedDate', -1]]);
+  if (sort === 'true') {
+    users = users.sort([['firstName', -1]]);
   } else {
-    users = users.sort([['joinedDate', 1]]);
+    users = users.sort([['firstName', 1]]);
   }
 
   const result = await users;
@@ -73,6 +78,7 @@ const CreateUser = async (req, res) => {
     membershipType,
     position,
     joinedDate,
+    dob,
   } = req.body;
 
   const data = {
@@ -87,6 +93,7 @@ const CreateUser = async (req, res) => {
     membershipType,
     position,
     joinedDate,
+    dob,
   };
   const user = await UserModel.create({ ...data });
 
