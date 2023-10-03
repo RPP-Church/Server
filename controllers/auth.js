@@ -34,7 +34,9 @@ const CreateAdmin = async (req, res) => {
     maxAge: 24 * 60 * 60 * 1000,
   });
 
-  res.status(StatusCodes.OK).json({ name: admin.name, token, refreshToken });
+  res
+    .status(StatusCodes.OK)
+    .json({ name: admin.name, token, userId: user._id });
 };
 
 const LoginAdmin = async (req, res) => {
@@ -76,7 +78,7 @@ const LoginAdmin = async (req, res) => {
     maxAge: 24 * 60 * 60 * 1000,
   });
 
-  res.status(StatusCodes.OK).json({ name: user.name, token, refreshToken });
+  res.status(StatusCodes.OK).json({ name: user.name, token, userId: user._id });
 };
 
 module.exports = {

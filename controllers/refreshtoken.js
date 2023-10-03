@@ -5,24 +5,24 @@ const jwt = require('jsonwebtoken');
 
 const RefreshToken = async (req, res) => {
   const cookie = req?.cookies?.jwt;
-  const { token } = req.body;
+  const { userId } = req.query;
 
   // if (!cookie) {
   //   throw new UnauthenticatedError('Unauthorized access');
   // }
-  if (!token) {
+  if (!userId) {
     throw new UnauthenticatedError('Unauthorized access');
   }
 
-  const refreshToken = token;
+  // const refreshToken = token;
 
-  const user = await User.findOne({ refreshToken: refreshToken.toString() });
+  const user = await User.findOne({ _id: userId });
 
   if (!user) {
     throw new UnauthenticatedError('Invalid email or password');
   }
 
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, decoded) => {
+  jwt.verify(user.refreshToken, process.env.REFRESH_TOKEN, (err, decoded) => {
     if (err || user.name !== decoded.name)
       throw new NotFoundError('Refresh token not found');
 
@@ -33,7 +33,9 @@ const RefreshToken = async (req, res) => {
         expiresIn: '15m',
       }
     );
-    res.status(StatusCodes.CREATED).json({ name: user.name, token });
+    res
+      .status(StatusCodes.CREATED)
+      .json({ name: user.name, token, userId: user._id });
   });
 };
 
