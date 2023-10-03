@@ -60,11 +60,28 @@ const UpdateDepartment = async (req, res) => {
     { new: true }
   );
 
-  res.status(StatusCodes.CREATED).json({ mesage: `Department updated` });
+  res.status(StatusCodes.OK).json({ mesage: `Department updated` });
+};
+
+const DeleteDepartment = async (req, res) => {
+  const { id } = req.params;
+
+  let findDepartment = await DepartmentModel.findOne({ _id: id });
+
+  if (!findDepartment) {
+    throw new NotFoundError('No department found');
+  }
+
+  findDepartment = await DepartmentModel.findByIdAndDelete({
+    _id: findDepartment._id,
+  });
+
+  res.status(StatusCodes.OK).json({ mesage: `Department deleted` });
 };
 
 module.exports = {
   CreateDepartment,
   UpdateDepartment,
   GetDepartments,
+  DeleteDepartment,
 };
