@@ -15,6 +15,7 @@ const GetUser = async (req, res) => {
     maritalStatus,
     sort,
     dob,
+    userId,
   } = req.query;
 
   let queryObject = {};
@@ -51,6 +52,10 @@ const GetUser = async (req, res) => {
 
   if (department) {
     queryObject.departments = department;
+  }
+
+  if (userId) {
+    queryObject._id = userId;
   }
   let users = UserModel.find(queryObject);
 
