@@ -119,6 +119,7 @@ const UpdateUser = async (req, res) => {
     address,
     departments,
     position,
+    membershipType,
   } = req.body;
 
   const data = {
@@ -129,6 +130,7 @@ const UpdateUser = async (req, res) => {
     address,
     departments,
     position,
+    membershipType,
   };
 
   let user = await UserModel.findOne({ _id });
@@ -143,8 +145,26 @@ const UpdateUser = async (req, res) => {
     .status(StatusCodes.OK)
     .json({ mesage: `${user.firstName} sucessfully updated` });
 };
+
+const DeleteUser = async (req, res) => {
+  const { id: _id } = req.params;
+
+  let user = await UserModel.findOne({ _id });
+
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  user = await UserModel.findByIdAndDelete({ _id });
+
+  res
+    .status(StatusCodes.OK)
+    .json({ mesage: `${user.firstName} sucessfully deleted` });
+};
+
 module.exports = {
   CreateUser,
   UpdateUser,
   GetUser,
+  DeleteUser,
 };
