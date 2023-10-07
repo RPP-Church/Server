@@ -100,6 +100,12 @@ const CreateUser = async (req, res) => {
     joinedDate,
     dob,
   };
+
+  for (const keys in Object.assign(data)) {
+    if (data[keys] === '') {
+      delete data[keys];
+    }
+  }
   const user = await UserModel.create({ ...data });
 
   if (user.membershipType === 'New Member') {
