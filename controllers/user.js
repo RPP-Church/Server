@@ -84,6 +84,7 @@ const CreateUser = async (req, res) => {
     position,
     joinedDate,
     dob,
+    interest,
   } = req.body;
 
   const data = {
@@ -99,6 +100,7 @@ const CreateUser = async (req, res) => {
     position,
     joinedDate,
     dob,
+    interest,
   };
 
   for (const keys in Object.assign(data)) {
@@ -126,6 +128,7 @@ const UpdateUser = async (req, res) => {
     departments,
     position,
     membershipType,
+    interest,
   } = req.body;
 
   const data = {
@@ -137,6 +140,7 @@ const UpdateUser = async (req, res) => {
     departments,
     position,
     membershipType,
+    interest,
   };
 
   let user = await UserModel.findOne({ _id });

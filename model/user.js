@@ -63,6 +63,11 @@ const User = mongoose.Schema({
     enum: ['User', 'Admin'],
     default: 'User',
   },
+  interest: {
+    type: String,
+    maxlength: 50,
+    default: null,
+  },
 });
 
 module.exports = mongoose.model('User', User);

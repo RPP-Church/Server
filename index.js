@@ -10,6 +10,7 @@ const authRoute = require('./route/auth');
 const departmentRoute = require('./route/department');
 const userRoute = require('./route/user');
 const refreshRoute = require('./route/refreshToken');
+const openRoute = require('./route/openRoute');
 
 const app = express();
 
@@ -38,7 +39,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-
 const corsConfig = {
   origin: true,
   credentials: true,
@@ -54,6 +54,7 @@ app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/refresh', refreshRoute);
 app.use('/api/v1/department', auth, departmentRoute);
 app.use('/api/v1/user', auth, userRoute);
+app.use('/api/v1/open', openRoute);
 
 //Middleware
 app.use(notFoundMiddleware);
