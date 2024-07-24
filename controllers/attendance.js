@@ -2,17 +2,34 @@ const { BadRequestError, NotFoundError } = require('../errors');
 const MembersModel = require('../model/members');
 const ActivitiesModel = require('../model/activities');
 const { StatusCodes } = require('http-status-codes');
+const CalculateTotal = require('../middleware/calculateTotal');
 
 const CaptureAttendance = async (req, res) => {
   const { activityId, memberName, memberPhone, memberId } = req.body;
 
-  if (!activityId && !memberPhone) {
-    throw new BadRequestError("missing activityId and member's info");
+  const type = memberPhone || memberName ? true : false;
+
+  if (!activityId) {
+    throw new BadRequestError('missing activityId');
   }
 
-  const findMember = await MembersModel.findOne({ phone: memberPhone });
+  if (!type) {
+    throw new BadRequestError("missing member's info");
+  }
 
-  if (!findMember && !findMember._id) {
+  let queryObject = {};
+
+  if (memberName) {
+    queryObject.firstName = memberName;
+  }
+
+  if (memberPhone) {
+    queryObject.phone = memberPhone;
+  }
+
+  const findMember = await MembersModel.findOne(queryObject);
+
+  if (findMember === null || (!findMember && !findMember._id)) {
     throw new NotFoundError('Member not yet registered.');
   }
 
@@ -22,31 +39,112 @@ const CaptureAttendance = async (req, res) => {
     throw new NotFoundError(`Activity with ID: ${activityId} not found`);
   }
 
-  const checkAttendance = await findMember?.attendance?.find(
+  const checkAttendance = await findMember?.attendance?.filter(
     (c) => c.serviceId?.toString() === activityId?.toString()
   );
 
-  if (checkAttendance?.attendance === 'Present') {
+  if (
+    checkAttendance?.length > 0 &&
+    checkAttendance[0]?.attendance === 'Present'
+  ) {
     throw new BadRequestError(
       `${findMember.firstName} already marked present for this activity`
     );
-  }
-
-  await MembersModel.updateOne(
-    { _id: findMember._id, 'attendance.serviceId': activity._id },
-    {
-      $set: {
-        'attendance.$.attendance': 'Present',
-        'attendance.$.time': new Date().toLocaleTimeString(),
+  } else if (checkAttendance?.length <= 0) {
+    const attendance = {
+      date: activity.date,
+      serviceName: activity.serviceName,
+      serviceId: activity._id,
+      attendance: 'Present',
+    };
+    await MembersModel.findOneAndUpdate(
+      { _id: findMember._id },
+      {
+        $push: {
+          attendance,
+        },
       },
-    }
-  )
-    .then((doc) => {
-      if (doc?.acknowledged) {
-        res
+      {
+        new: true,
+      }
+    )
+      .then((doc) => {
+        return res
           .status(StatusCodes.OK)
           .json({ mesage: `${findMember.firstName} attendance captured` });
+      })
+      .catch((error) => {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ mesage: error.message });
+      });
+  } else {
+    await MembersModel.updateOne(
+      { _id: findMember._id, 'attendance.serviceId': activity._id },
+      {
+        $set: {
+          'attendance.$.attendance': 'Present',
+          'attendance.$.time': new Date().toLocaleTimeString(),
+        },
       }
+    )
+      .then((doc) => {
+        if (doc?.acknowledged) {
+          res
+            .status(StatusCodes.OK)
+            .json({ mesage: `${findMember.firstName} attendance captured` });
+        }
+      })
+      .catch((error) => {
+        res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ mesage: error.message });
+      });
+  }
+};
+
+const GenerateTotalAttendance = async (req, res) => {
+  const { activityId, type } = req.body;
+
+  if (!activityId) {
+    throw new BadRequestError('No activity Id found');
+  }
+
+  const activity = await ActivitiesModel.findOne({ _id: activityId });
+
+  if (!activity && !activity._id) {
+    throw new NotFoundError(`No activity with ID: ${activityId} found`);
+  }
+
+  //! check current time to make sure service has ended
+  //! this should be a cron job later
+
+  // let queryObject = {
+  //   attendance: {
+  //     $elemMatch: { serviceId: activity._id, attendance: type },
+  //   },
+  // }
+  // if(type) {
+
+  //     $elemMatch: { serviceId: activity._id, attendance: type },
+
+  // }
+
+  await MembersModel.find({
+    attendance: {
+      $elemMatch: { serviceId: activity._id, attendance: type },
+    },
+  })
+    .then(async (doc) => {
+      const { female, male, child, teenFemale, teenMale, total, exc } =
+        await CalculateTotal({
+          data: doc,
+          type,
+          activityId,
+          activityName: activity.name,
+        });
+
+      res.send(exc);
     })
     .catch((error) => {
       res
@@ -55,7 +153,7 @@ const CaptureAttendance = async (req, res) => {
     });
 };
 
-
 module.exports = {
   CaptureAttendance,
+  GenerateTotalAttendance,
 };

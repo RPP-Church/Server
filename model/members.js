@@ -11,6 +11,12 @@ var attendanceSchema = mongoose.Schema({
   },
   _id: false,
 });
+
+var departmentSchema = mongoose.Schema({
+  deptId: mongoose.Types.ObjectId,
+  name: String,
+  _id: false,
+});
 const Members = mongoose.Schema({
   title: {
     type: String,
@@ -49,6 +55,7 @@ const Members = mongoose.Schema({
   category: {
     type: String,
     enum: ['Adult', 'Teen', 'Children'],
+    required: [true, 'Select Category'],
   },
   maritalStatus: {
     type: String,
@@ -73,16 +80,10 @@ const Members = mongoose.Schema({
     maxlength: 100,
     trim: true,
   },
-  departments: [
-    {
-      type: mongoose.Types.ObjectId,
-      name: String,
-    },
-  ],
+  departments: [departmentSchema],
   membershipType: {
     type: String,
     enum: ['Existing Member', 'New Member'],
-    required: [true, 'Please select membership type'],
   },
   joinedDate: {
     type: Date,
@@ -97,7 +98,7 @@ const Members = mongoose.Schema({
       message: (props) =>
         `${props.value} is not a valid date, please enter MM/DD.`,
     },
-    required: [true, 'Please provide a valid date of birth'],
+    // required: [true, 'Please provide a valid date of birth'],
   },
   attendance: [attendanceSchema],
 });

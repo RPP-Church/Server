@@ -22,9 +22,8 @@ const GetDepartments = async (req, res) => {
 };
 
 const CreateDepartment = async (req, res) => {
-  const { name, headOfDepartment,
-    headOfDepartmentPhone,
-    ministerInCharge } = req.body;
+  const { name, headOfDepartment, headOfDepartmentPhone, ministerInCharge } =
+    req.body;
 
   let findDepartment = await DepartmentModel.findOne({ name });
 
@@ -46,10 +45,11 @@ const CreateDepartment = async (req, res) => {
 };
 
 const UpdateDepartment = async (req, res) => {
-  const { name } = req.body;
+  const { name, headOfDepartment, headOfDepartmentPhone, ministerInCharge } =
+    req.body;
   const { id } = req.params;
 
-  if (!id || !name) {
+  if (!id) {
     throw new BadRequestError('Please provide name');
   }
 
@@ -59,9 +59,25 @@ const UpdateDepartment = async (req, res) => {
     throw new NotFoundError('No department found');
   }
 
+  let updateObj = { modifiedBy: req.user.name };
+
+  if (name) {
+    updateObj.name = name;
+  }
+
+  if (headOfDepartment) {
+    updateObj.headOfDepartment = headOfDepartment;
+  }
+
+  if (headOfDepartmentPhone) {
+    updateObj.headOfDepartmentPhone = headOfDepartmentPhone;
+  }
+  if (ministerInCharge) {
+    updateObj.ministerInCharge = ministerInCharge;
+  }
   findDepartment = await DepartmentModel.findByIdAndUpdate(
     { _id: findDepartment._id },
-    { name, modifyBy: req.user.userId },
+    updateObj,
     { new: true }
   );
 

@@ -3,20 +3,38 @@ const MembersModel = require('../model/members');
 const ActivitiesModel = require('../model/activities');
 const { StatusCodes } = require('http-status-codes');
 
+const GetASingleMember = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    throw new BadRequestError('No Id found');
+  }
+
+  await MembersModel.findOne({ _id: id })
+    .then((doc) => {
+      res.status(StatusCodes.OK).json({ data: doc });
+    })
+    .catch((error) => {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    });
+};
+
 const GetUser = async (req, res) => {
   const {
     name,
     gender,
     address,
     department,
-    position,
     fromDate,
     toDate,
     membershipType,
     maritalStatus,
     sort,
     dob,
-    userId,
+    phone,
+    category,
   } = req.query;
 
   let queryObject = {};
@@ -39,25 +57,28 @@ const GetUser = async (req, res) => {
     queryObject.maritalStatus = maritalStatus;
   }
 
-  if (position) {
-    queryObject.position = position;
-  }
-
   if (fromDate || toDate) {
     queryObject.joinedDate = { $gte: fromDate, $lte: toDate };
   }
 
   if (dob) {
-    queryObject.dob = dob;
+    queryObject.dateOfBirth = dob;
   }
 
   if (department) {
-    queryObject.departments = department;
+    queryObject.departments = {
+      $elemMatch: { name: department },
+    };
   }
 
-  if (userId) {
-    queryObject._id = userId;
+  if (phone) {
+    queryObject.phone = phone;
   }
+
+  if (category) {
+    queryObject.category = category;
+  }
+
   let users = MembersModel.find(queryObject);
 
   if (sort === 'true') {
@@ -146,7 +167,6 @@ const CreateUser = async (req, res) => {
   // if (user.membershipType === 'New Member') {
   //   console.log('follow up department send mail');
   // }
-
 };
 
 const UpdateUser = async (req, res) => {
@@ -158,9 +178,7 @@ const UpdateUser = async (req, res) => {
     maritalStatus,
     address,
     departments,
-    position,
     membershipType,
-    interest,
   } = req.body;
 
   const data = {
@@ -170,9 +188,7 @@ const UpdateUser = async (req, res) => {
     maritalStatus,
     address,
     departments,
-    position,
     membershipType,
-    interest,
   };
 
   let user = await MembersModel.findOne({ _id });
@@ -213,4 +229,5 @@ module.exports = {
   UpdateUser,
   GetUser,
   DeleteUser,
+  GetASingleMember,
 };

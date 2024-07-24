@@ -36,7 +36,7 @@ const Departments = mongoose.Schema(
       trim: true,
     },
     modifiedBy: {
-      type: mongoose.Types.ObjectId,
+      type: String,
       ref: 'admin',
     },
   },
