@@ -11,15 +11,23 @@ const CreateActivities = async (req, res) => {
   }
 
   const getDay = new Date(date).getDay();
-
+  if (getDay === NaN) {
+    throw new BadRequestError('Invalid Date');
+  }
   if (getDay > 0) {
     throw new BadRequestError(
       'Activity can only be created for sunday service for now.'
     );
   }
 
+  const month = new Date(date).getMonth() + 1;
+  const day = new Date(date).getDate();
+  const year = new Date(date).getFullYear();
+
   await ActivitiesModel.create({
-    date,
+    date: `${day.toString()?.padStart(2, '0')}-${month
+      .toString()
+      ?.padStart(2, '0')}-${year}`,
     serviceName,
     createdBy: req.user.name,
   })
