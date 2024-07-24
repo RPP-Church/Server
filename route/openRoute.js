@@ -1,4 +1,4 @@
-const { CreateUser } = require('../controllers/user');
+const { CreateUser } = require('../controllers/members');
 const { GetDepartments } = require('../controllers/department');
 const express = require('express');
 

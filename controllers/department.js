@@ -22,7 +22,9 @@ const GetDepartments = async (req, res) => {
 };
 
 const CreateDepartment = async (req, res) => {
-  const { name } = req.body;
+  const { name, headOfDepartment,
+    headOfDepartmentPhone,
+    ministerInCharge } = req.body;
 
   let findDepartment = await DepartmentModel.findOne({ name });
 
@@ -32,6 +34,9 @@ const CreateDepartment = async (req, res) => {
 
   findDepartment = await DepartmentModel.create({
     name,
+    headOfDepartment,
+    headOfDepartmentPhone,
+    ministerInCharge,
     createdBy: req.user.userId,
   });
 

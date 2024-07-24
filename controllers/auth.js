@@ -1,15 +1,16 @@
-const { BadRequestError, UnauthenticatedError } = require('../errors');
+const { BadRequestError, UnauthenticatedError, NotFoundError } = require('../errors');
 const AdminModel = require('../model/admin.js');
 const { StatusCodes } = require('http-status-codes');
 const cookie = require('cookie');
 
 const CreateAdmin = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
 
   const data = {
     name,
     email,
     password,
+    phone
   };
 
   const admin = await AdminModel.create({ ...data });
@@ -36,26 +37,26 @@ const CreateAdmin = async (req, res) => {
 
   res
     .status(StatusCodes.OK)
-    .json({ name: admin.name, token, userId: user._id });
+    .json({ name: admin.name, token, userId: admin._id });
 };
 
 const LoginAdmin = async (req, res) => {
-  const { email, password } = req.body;
+  const { phone, password } = req.body;
 
-  if (!email || !password) {
-    throw new BadRequestError('Please provide email and password');
+  if (!phone || !password) {
+    throw new BadRequestError('Please provide phone and password');
   }
 
-  const user = await AdminModel.findOne({ email });
+  const user = await AdminModel.findOne({ phone });
 
   if (!user) {
-    throw new UnauthenticatedError('Invalid email or password');
+    throw new NotFoundError('Invalid phone or password');
   }
 
   const matchedpassword = await user.comparePassword(password);
 
   if (!matchedpassword) {
-    throw new UnauthenticatedError('Invalid email or password');
+    throw new BadRequestError('Invalid phone or password');
   }
 
   const token = user.CreateJWT();

@@ -8,9 +8,11 @@ const auth = require('./middleware/authentication');
 const Whitelist = require('./middleware/whitelist');
 const authRoute = require('./route/auth');
 const departmentRoute = require('./route/department');
-const userRoute = require('./route/user');
+const membersRoute = require('./route/members');
 const refreshRoute = require('./route/refreshToken');
 const openRoute = require('./route/openRoute');
+const activitiesRoute = require('./route/activities');
+const attendanceRoute = require('./route/attendance');
 
 const app = express();
 
@@ -53,7 +55,10 @@ app.use(express.json());
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/refresh', refreshRoute);
 app.use('/api/v1/department', auth, departmentRoute);
-app.use('/api/v1/user', auth, userRoute);
+app.use('/api/v1/member', auth, membersRoute);
+app.use('/api/v1/activities', auth, activitiesRoute);
+app.use('/api/v1/attendance', auth, attendanceRoute);
+
 app.use('/api/v1/open', openRoute);
 
 //Middleware

@@ -1,5 +1,6 @@
 const { BadRequestError, NotFoundError } = require('../errors');
-const UserModel = require('../model/user');
+const MembersModel = require('../model/members');
+const ActivitiesModel = require('../model/activities');
 const { StatusCodes } = require('http-status-codes');
 
 const GetUser = async (req, res) => {
@@ -57,7 +58,7 @@ const GetUser = async (req, res) => {
   if (userId) {
     queryObject._id = userId;
   }
-  let users = UserModel.find(queryObject);
+  let users = MembersModel.find(queryObject);
 
   if (sort === 'true') {
     users = users.sort([['firstName', -1]]);
@@ -72,35 +73,46 @@ const GetUser = async (req, res) => {
 
 const CreateUser = async (req, res) => {
   const {
+    title,
+    profilePicture,
     firstName,
     lastName,
     gender,
     phone,
+    category,
     maritalStatus,
+    spouseName,
     email,
     address,
     departments,
     membershipType,
-    position,
     joinedDate,
-    dob,
-    interest,
+    dateOfBirth,
   } = req.body;
 
+  const month = dateOfBirth ? new Date(dateOfBirth).getMonth() + 1 : '';
+  const day = dateOfBirth ? new Date(dateOfBirth).getDay() + 1 : '';
+
   const data = {
+    title,
+    profilePicture,
     firstName,
     lastName,
     gender,
     phone,
+    category,
     maritalStatus,
+    spouseName,
     email,
     address,
     departments,
     membershipType,
-    position,
     joinedDate,
-    dob,
-    interest,
+    dateOfBirth: dateOfBirth
+      ? `${day.toString()?.padStart(2, '0')}-${month
+          .toString()
+          ?.padStart(2, '0')}`
+      : '',
   };
 
   for (const keys in Object.assign(data)) {
@@ -108,13 +120,33 @@ const CreateUser = async (req, res) => {
       delete data[keys];
     }
   }
-  const user = await UserModel.create({ ...data });
+  const activities = await ActivitiesModel.find({});
 
-  if (user.membershipType === 'New Member') {
-    console.log('follow up department send mail');
-  }
+  const user = await MembersModel.create({ ...data })
+    .then((doc) => {
+      const allActivities = activities.map((item) => ({
+        date: item.date,
+        serviceName: item.serviceName,
+        serviceId: item._id,
+        time: item.time || '',
+        attendance: 'Absent',
+      }));
+      doc.attendance = allActivities;
+      doc.save();
+      res
+        .status(StatusCodes.CREATED)
+        .json({ mesage: `${doc.firstName} created` });
+    })
+    .catch((error) => {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ mesage: error.message });
+    });
 
-  res.status(StatusCodes.CREATED).json({ mesage: `${user.firstName} created` });
+  // if (user.membershipType === 'New Member') {
+  //   console.log('follow up department send mail');
+  // }
+
 };
 
 const UpdateUser = async (req, res) => {
@@ -143,13 +175,17 @@ const UpdateUser = async (req, res) => {
     interest,
   };
 
-  let user = await UserModel.findOne({ _id });
+  let user = await MembersModel.findOne({ _id });
 
   if (!user) {
     throw new NotFoundError('User not found');
   }
 
-  user = await UserModel.findByIdAndUpdate({ _id }, { ...data }, { new: true });
+  user = await MembersModel.findByIdAndUpdate(
+    { _id },
+    { ...data },
+    { new: true }
+  );
 
   res
     .status(StatusCodes.OK)
@@ -159,13 +195,13 @@ const UpdateUser = async (req, res) => {
 const DeleteUser = async (req, res) => {
   const { id: _id } = req.params;
 
-  let user = await UserModel.findOne({ _id });
+  let user = await MembersModel.findOne({ _id });
 
   if (!user) {
     throw new NotFoundError('User not found');
   }
 
-  user = await UserModel.findByIdAndDelete({ _id });
+  user = await MembersModel.findByIdAndDelete({ _id });
 
   res
     .status(StatusCodes.OK)
