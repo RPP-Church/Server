@@ -129,10 +129,14 @@ const GenerateTotalAttendance = async (req, res) => {
   //     $elemMatch: { serviceId: activity._id, attendance: type },
 
   // }
+  let queryObject = { serviceId: activity._id };
+  if (type) {
+    queryObject.attendance = type;
+  }
 
   await MembersModel.find({
     attendance: {
-      $elemMatch: { serviceId: activity._id, attendance: type },
+      $elemMatch: queryObject,
     },
   })
     .then(async (doc) => {

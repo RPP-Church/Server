@@ -10,7 +10,7 @@ const auth = async (req, res, next) => {
 
   const bearer = authHeader.split(' ')[1];
   try {
-    const token = jwt.verify("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmEwZDk2NGQzN2YwNTgwOWNmMDFiMDIiLCJuYW1lIjoiVmljdG9yIE9rb3JvbWkiLCJpYXQiOjE3MjE4MjMzNDcsImV4cCI6MTcyMTkwOTc0N30.DeWD-9OYcrr9e0KoOv_qnKD2oi48-mmnmobuTHg_UkU", process.env.JWT_SECRET);
+    const token = jwt.verify("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmEwZDk2NGQzN2YwNTgwOWNmMDFiMDIiLCJuYW1lIjoiVmljdG9yIE9rb3JvbWkiLCJpYXQiOjE3MjE5MDk5MTEsImV4cCI6MTcyMTk5NjMxMX0.mpxy9ui8mpcZWcl-dUICGtq-qgPrB_l7JXdxW7SQJO8", process.env.JWT_SECRET);
     
     req.user = { userId: token.userId, name: token.name };
     next();
