@@ -13,12 +13,14 @@ const refreshRoute = require('./route/refreshToken');
 const openRoute = require('./route/openRoute');
 const activitiesRoute = require('./route/activities');
 const attendanceRoute = require('./route/attendance');
+const swaggerUI = require('swagger-ui-express');
 
 const app = express();
 
 //Error handler
 const notFoundMiddleware = require('./middleware/notFound');
 const errorHandlerMiddleware = require('./middleware/error-handler');
+const swaggerSpec = require('./docs/swagger');
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -50,6 +52,8 @@ app.options('*', cors(corsConfig));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.json());
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+
 
 //Routes
 app.use('/api/v1/auth', authRoute);
@@ -58,9 +62,7 @@ app.use('/api/v1/department', auth, departmentRoute);
 app.use('/api/v1/member', auth, membersRoute);
 app.use('/api/v1/activities', auth, activitiesRoute);
 app.use('/api/v1/attendance', auth, attendanceRoute);
-
 app.use('/api/v1/open', openRoute);
-
 //Middleware
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
@@ -74,6 +76,7 @@ const start = async () => {
     app.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
+    // swaggerDocs(app, port);
   } catch (error) {
     console.log(error);
   }
