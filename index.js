@@ -2,6 +2,7 @@ require('dotenv').config();
 require('express-async-errors');
 const connectDb = require('./Db/connect');
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const auth = require('./middleware/authentication');
@@ -14,13 +15,14 @@ const openRoute = require('./route/openRoute');
 const activitiesRoute = require('./route/activities');
 const attendanceRoute = require('./route/attendance');
 const swaggerUI = require('swagger-ui-express');
-
 const app = express();
 
 //Error handler
 const notFoundMiddleware = require('./middleware/notFound');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 const swaggerSpec = require('./docs/swagger');
+
+app.use('/doc', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -47,22 +49,25 @@ const corsConfig = {
   origin: true,
   credentials: true,
 };
+const helmet = require('helmet');
+const xss = require('xss-clean');
 app.use(cors(corsConfig));
 app.options('*', cors(corsConfig));
-app.use(express.json());
+ app.use(express.json());
 app.use(cookieParser());
-app.use(express.json());
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+app.use(helmet());
 
-
+app.use(xss());
 //Routes
-app.use('/api/v1/auth', authRoute);
+
 app.use('/api/v1/refresh', refreshRoute);
 app.use('/api/v1/department', auth, departmentRoute);
 app.use('/api/v1/member', auth, membersRoute);
 app.use('/api/v1/activities', auth, activitiesRoute);
 app.use('/api/v1/attendance', auth, attendanceRoute);
 app.use('/api/v1/open', openRoute);
+app.use('/api/v1/auth', authRoute);
+
 //Middleware
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

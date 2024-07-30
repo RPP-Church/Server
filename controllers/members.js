@@ -111,6 +111,7 @@ const CreateUser = async (req, res) => {
     dateOfBirth,
   } = req.body;
 
+
   const month = dateOfBirth ? new Date(dateOfBirth).getMonth() + 1 : '';
   const day = dateOfBirth ? new Date(dateOfBirth).getDay() + 1 : '';
 
