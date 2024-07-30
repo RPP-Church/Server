@@ -6,6 +6,84 @@ const express = require('express');
 
 const router = express.Router();
 
+/** POST Methods */
+/**
+ * @openapi
+ * '/attendance':
+ *  post:
+ *     security:
+ *     - bearerAuth: []
+ *     tags:
+ *     - Attendance Controller
+ *     summary: Create attendance
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - activityId
+ *              - memberName
+ *              - memberPhone
+ *            properties:
+ *              activityId:
+ *                type: string
+ *                default: ''
+ *              memberName:
+ *                type: string
+ *                default: ''
+ *              memberPhone:
+ *                type: String
+ *                default: ''
+ *     responses:
+ *      201:
+ *        description: Created
+ *      409:
+ *        description: Conflict
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Server Error
+ */
+
+
+/** POST Methods */
+/**
+ * @openapi
+ * '/attendance/total':
+ *  post:
+ *     security:
+ *     - bearerAuth: []
+ *     tags:
+ *     - Attendance Controller
+ *     summary: Generate attendance
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - activityId
+ *              - type
+ *            properties:
+ *              activityId:
+ *                type: string
+ *                default: ''
+ *              type:
+ *                type: string
+ *                default: 'Present/Absent'
+ *     responses:
+ *      201:
+ *        description: Created
+ *      409:
+ *        description: Conflict
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Server Error
+ */
 router.route('/').post(CaptureAttendance);
 router.route('/total').post(GenerateTotalAttendance);
 
