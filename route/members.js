@@ -115,9 +115,9 @@ const router = express.Router();
  *     - Member Controller
  *     summary: Get a single member by Id
  *     parameters:
- *      - name: userId
+ *      - name: id
  *        in: path
- *        description: The unique Id of the user
+ *        description: The unique Id of the member
  *        required: true
  *     responses:
  *      200:
@@ -183,11 +183,11 @@ const router = express.Router();
  *     - bearerAuth: []
  *     tags:
  *     - Member Controller
- *     summary: Delete user by Id
+ *     summary: Delete member by Id
  *     parameters:
- *      - name: userId
+ *      - name: id
  *        in: path
- *        description: The unique Id of the user
+ *        description: The unique Id of the member
  *        required: true
  *     responses:
  *      200:
