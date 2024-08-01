@@ -143,8 +143,8 @@ const CreateUser = async (req, res) => {
     }
   }
 
-  const month = dateOfBirth ? new Date(dateOfBirth).getMonth() + 1 : '';
-  const day = dateOfBirth ? new Date(dateOfBirth).getDay() + 1 : '';
+  // const month = dateOfBirth ? new Date(dateOfBirth).getMonth() + 1 : '';
+  // const day = dateOfBirth ? new Date(dateOfBirth).getDay() + 1 : '';
 
   const data = {
     title,
@@ -162,10 +162,10 @@ const CreateUser = async (req, res) => {
     membershipType,
     joinedDate,
     dateOfBirth: dateOfBirth
-      ? `${day.toString()?.padStart(2, '0')}-${month
-          .toString()
-          ?.padStart(2, '0')}`
-      : '',
+      // ? `${day.toString()?.padStart(2, '0')}-${month
+      //     .toString()
+      //     ?.padStart(2, '0')}`
+      // : '',
   };
 
   for (const keys in Object.assign(data)) {
