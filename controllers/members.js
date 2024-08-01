@@ -87,7 +87,7 @@ const GetUser = async (req, res) => {
   let users = MembersModel.find(queryObject)
     .skip(pageOptions.page * pageOptions.limit)
     .limit(pageOptions.limit)
-    .sort([['createdAt', +1]]);
+    .sort([['createdAt', -1]]);
 
   const Count = await MembersModel.countDocuments(queryObject);
 
