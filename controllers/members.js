@@ -37,6 +37,11 @@ const GetUser = async (req, res) => {
     category,
   } = req.query;
 
+  const pageOptions = {
+    page: parseInt(req.query.page - 1, 10) || 0,
+    limit: parseInt(req.query.limit, 10) || 10,
+  };
+
   let queryObject = {};
 
   if (name) {
@@ -79,7 +84,12 @@ const GetUser = async (req, res) => {
     queryObject.category = category;
   }
 
-  let users = MembersModel.find(queryObject);
+  let users = MembersModel.find(queryObject)
+    .skip(pageOptions.page * pageOptions.limit)
+    .limit(pageOptions.limit)
+    .sort([['createdAt', +1]]);
+
+  const Count = await MembersModel.countDocuments(queryObject);
 
   if (sort === 'true') {
     users = users.sort([['firstName', -1]]);
@@ -88,8 +98,15 @@ const GetUser = async (req, res) => {
   }
 
   const result = await users;
+  const totalPage = Math.round(Count / result.length);
 
-  res.status(StatusCodes.OK).json(result);
+  res.status(StatusCodes.OK).json({
+    data: result,
+    length: result.length,
+    totalElement: result?.length <= 0 ? 0 : Count,
+    totalPage: totalPage === 0 ? 1 : totalPage === -1 ? 0 : totalPage,
+    current: pageOptions?.page,
+  });
 };
 
 const CreateUser = async (req, res) => {
