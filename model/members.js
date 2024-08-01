@@ -47,7 +47,6 @@ const Members = mongoose.Schema(
       type: String,
       minLength: 11,
       maxLength: 11,
-      unique: true,
       match: [
         /^(?:(?:(?:\+?234(?:\h1)?|01)\h*)?(?:\(\d{3}\)|\d{3})|\d{4})(?:\W*\d{3})?\W*\d{4}$/gm,
         'Please provide a phone number e.g 09012345678',
@@ -72,7 +71,6 @@ const Members = mongoose.Schema(
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         'Please provide a valid email',
       ],
-      unique: true,
       lowercase: true,
     },
     address: {
