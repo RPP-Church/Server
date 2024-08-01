@@ -105,8 +105,9 @@ const GetUser = async (req, res) => {
   res.status(StatusCodes.OK).json({
     data: result,
     length: result.length,
-    totalElement: result?.length <= 0 ? 0 : Count,
+    totalElement: Count,
     totalPage: pagination,
+    numberofElement: result?.length,
     current: pageOptions?.page,
   });
 };
