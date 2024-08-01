@@ -98,13 +98,15 @@ const GetUser = async (req, res) => {
   }
 
   const result = await users;
-  const totalPage = Math.round(Count / result.length);
+  const totalPage = Math.round(Count / pageOptions.limit);
 
+  const pagination =
+    Math.round(Count % pageOptions.limit) === 0 ? totalPage : totalPage + 1;
   res.status(StatusCodes.OK).json({
     data: result,
     length: result.length,
     totalElement: result?.length <= 0 ? 0 : Count,
-    totalPage: totalPage === 0 ? 1 : totalPage === -1 ? 0 : totalPage,
+    totalPage: pagination,
     current: pageOptions?.page,
   });
 };
@@ -161,11 +163,11 @@ const CreateUser = async (req, res) => {
     departments,
     membershipType,
     joinedDate,
-    dateOfBirth: dateOfBirth
-      // ? `${day.toString()?.padStart(2, '0')}-${month
-      //     .toString()
-      //     ?.padStart(2, '0')}`
-      // : '',
+    dateOfBirth: dateOfBirth,
+    // ? `${day.toString()?.padStart(2, '0')}-${month
+    //     .toString()
+    //     ?.padStart(2, '0')}`
+    // : '',
   };
 
   for (const keys in Object.assign(data)) {
