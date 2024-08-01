@@ -111,6 +111,20 @@ const CreateUser = async (req, res) => {
     dateOfBirth,
   } = req.body;
 
+  if (email || phone) {
+    let query = {};
+    if (email) {
+      query.email = email;
+    }
+    if (phone) {
+      query.phone = phone;
+    }
+    const findMember = await MembersModel.findOne(query);
+
+    if (findMember && findMember?._id) {
+      throw new BadRequestError('Member phone or email already exist');
+    }
+  }
 
   const month = dateOfBirth ? new Date(dateOfBirth).getMonth() + 1 : '';
   const day = dateOfBirth ? new Date(dateOfBirth).getDay() + 1 : '';
