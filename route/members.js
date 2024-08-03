@@ -202,6 +202,6 @@ const router = express.Router();
 
 router.route('/').post(CreateUser).get(GetUser);
 
-router.route('/:id').patch(UpdateUser).delete(DeleteUser).get(GetASingleMember);
+router.route('/:id').put(UpdateUser).delete(DeleteUser).get(GetASingleMember);
 
 module.exports = router;
