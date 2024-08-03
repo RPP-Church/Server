@@ -72,6 +72,40 @@ const router = express.Router();
  *      500:
  *        description: Server Error
  */
+
+/** POST Methods */
+/**
+ * @openapi
+ * '/activities/auto':
+ *  post:
+ *     security:
+ *     - bearerAuth: []
+ *     tags:
+ *     - Activity Controller
+ *     summary: Auto create church activity
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - date
+ *            properties:
+ *              date:
+ *                type: string
+ *                default: '22-08-2024'
+ *
+ *     responses:
+ *      201:
+ *        description: Created
+ *      409:
+ *        description: Conflict
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Server Error
+ */
 router.route('/').post(CreateActivities).get(GetActivities);
 router.route('/member').post(CaptureActivityforMember);
 router.route('/auto').post(GetCaptureActivity);

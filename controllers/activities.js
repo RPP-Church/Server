@@ -78,7 +78,7 @@ const GetActivities = async (req, res) => {
     queryObject.serviceName = serviceName;
   }
 
-  console.log(date)
+  console.log(date);
 
   let data = ActivitiesModel.find(queryObject)
     .skip(pageOptions.page * pageOptions.limit)
@@ -165,9 +165,15 @@ const GetCaptureActivity = async (req, res) => {
       data: activity,
     });
   } else {
-    const getDay = new Date(date).getDay();
-    const getTime = new Date(date).getTime();
- 
+    const inputDate = new Date(date);
+    const getDay = inputDate?.getDay();
+    const getTime = inputDate?.getHours();
+    var todaysDate = new Date();
+
+    if (!(inputDate.setHours(0, 0, 0, 0) == todaysDate.setHours(0, 0, 0, 0))) {
+      throw new BadRequestError('Date is in the past or future date');
+    }
+
     if (getDay == NaN) {
       throw new BadRequestError('Invalid Date');
     }
@@ -184,8 +190,42 @@ const GetCaptureActivity = async (req, res) => {
     const month = new Date(date).getMonth() + 1;
     const day = new Date(date).getDate();
     const year = new Date(date).getFullYear();
-    console.log(getTime, 'get');
-    res.send('hello');
+
+    await ActivitiesModel.create({
+      date: `${day.toString()?.padStart(2, '0')}-${month
+        .toString()
+        ?.padStart(2, '0')}-${year}`,
+      serviceName: 'Sunday Service',
+      createdBy: req.user.name,
+    })
+      .then(async (doc) => {
+        const attendance = {
+          date,
+          serviceName: doc.serviceName,
+          serviceId: doc._id,
+          attendance: 'Absent',
+        };
+
+        await MembersModel.updateMany(
+          {},
+          {
+            $push: {
+              attendance,
+            },
+          },
+          {
+            new: true,
+          }
+        );
+        res
+          .status(StatusCodes.CREATED)
+          .json({ mesage: `${doc.serviceName} created` });
+      })
+      .catch((error) => {
+        res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ mesage: error.message });
+      });
   }
 };
 module.exports = {
