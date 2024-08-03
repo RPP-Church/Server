@@ -214,17 +214,8 @@ const UpdateUser = async (req, res) => {
     address,
     departments,
     membershipType,
+    email,
   } = req.body;
-
-  const data = {
-    firstName,
-    lastName,
-    phone,
-    maritalStatus,
-    address,
-    departments,
-    membershipType,
-  };
 
   let user = await MembersModel.findOne({ _id });
 
@@ -232,11 +223,45 @@ const UpdateUser = async (req, res) => {
     throw new NotFoundError('User not found');
   }
 
-  user = await MembersModel.findByIdAndUpdate(
-    { _id },
-    { ...data },
-    { new: true }
-  );
+  let data = {};
+
+  if (firstName) {
+    data.firstName = firstName;
+  }
+
+  if (lastName) {
+    data.lastName = lastName;
+  }
+
+  if (phone) {
+    data.phone = phone;
+  }
+
+  if (maritalStatus) {
+    data.maritalStatus = maritalStatus;
+  }
+
+  if (address) {
+    data.address = address;
+  }
+
+  if (departments) {
+    data.departments = departments;
+  }
+
+  if (address) {
+    data.address = address;
+  }
+
+  if (membershipType) {
+    data.membershipType = membershipType;
+  }
+
+  if (email) {
+    data.email = email;
+  }
+
+  user = await MembersModel.findByIdAndUpdate({ _id }, data, { new: true });
 
   res
     .status(StatusCodes.OK)
