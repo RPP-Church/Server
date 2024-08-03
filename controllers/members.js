@@ -23,7 +23,7 @@ const GetASingleMember = async (req, res) => {
 
 const GetUser = async (req, res) => {
   const {
-    name,
+    firstName,
     gender,
     address,
     department,
@@ -35,6 +35,7 @@ const GetUser = async (req, res) => {
     dob,
     phone,
     category,
+    lastName
   } = req.query;
 
   const pageOptions = {
@@ -44,8 +45,12 @@ const GetUser = async (req, res) => {
 
   let queryObject = {};
 
-  if (name) {
-    queryObject.firstName = { $regex: name, $options: 'i' };
+  if (firstName) {
+    queryObject.firstName = { $regex: firstName, $options: 'i' };
+  }
+
+  if (lastName) {
+    queryObject.lastName = { $regex: lastName, $options: 'i' };
   }
   if (gender) {
     queryObject.gender = gender;
