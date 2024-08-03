@@ -10,7 +10,10 @@ const CreateActivities = async (req, res) => {
     throw new BadRequestError('Missing date or service name');
   }
 
-  const getDay = new Date(date).getDay();
+  const inputDate = new Date(date);
+  const getDay = inputDate.getDay();
+  const getTime = inputDate.getHours();
+
   if (getDay === NaN) {
     throw new BadRequestError('Invalid Date');
   }
@@ -20,12 +23,22 @@ const CreateActivities = async (req, res) => {
     );
   }
 
-  const month = new Date(date).getMonth() + 1;
-  const day = new Date(date).getDate();
-  const year = new Date(date).getFullYear();
+  var todaysDate = new Date();
+
+  if (getTime > 11) {
+    throw new BadRequestError('Activity cannot be created after past 11am');
+  }
+
+  if (!(inputDate.setHours(0, 0, 0, 0) == todaysDate.setHours(0, 0, 0, 0))) {
+    throw new BadRequestError('Date is in the past or future date');
+  }
+
+  const month = inputDate.getMonth() + 1;
+  const day = inputDate.getDate();
+  const year = inputDate.getFullYear();
 
   await ActivitiesModel.create({
-    date: `${day.toString()?.padStart(2, '0')}/${month
+    date: `${month.toString()?.padStart(2, '0')}/${day
       .toString()
       ?.padStart(2, '0')}/${year}`,
     serviceName,
@@ -72,7 +85,16 @@ const GetActivities = async (req, res) => {
   let queryObject = {};
 
   if (date) {
-    queryObject.date = date;
+    const today = new Date(date);
+    const month = today?.getMonth() + 1;
+    const day = today?.getDate();
+    const year = today?.getFullYear();
+    const useDate = `${day.toString()?.padStart(2, '0')}/${month
+      .toString()
+      ?.padStart(2, '0')}/${year}`;
+
+    console.log(useDate, 'useDate');
+    queryObject.date = useDate;
   }
   if (serviceName) {
     queryObject.serviceName = serviceName;
@@ -194,7 +216,7 @@ const GetCaptureActivity = async (req, res) => {
     const year = new Date(date).getFullYear();
 
     await ActivitiesModel.create({
-      date: `${day.toString()?.padStart(2, '0')}/${month
+      date: `${month.toString()?.padStart(2, '0')}/${day
         .toString()
         ?.padStart(2, '0')}/${year}`,
       serviceName: 'Sunday Service',
