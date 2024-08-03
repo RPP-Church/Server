@@ -1,4 +1,8 @@
-const { BadRequestError, UnauthenticatedError, NotFoundError } = require('../errors');
+const {
+  BadRequestError,
+  UnauthenticatedError,
+  NotFoundError,
+} = require('../errors');
 const AdminModel = require('../model/admin.js');
 const { StatusCodes } = require('http-status-codes');
 const cookie = require('cookie');
@@ -10,8 +14,16 @@ const CreateAdmin = async (req, res) => {
     name,
     email,
     password,
-    phone
+    phone,
   };
+
+  if (email) {
+    const findEmail = await AdminModel.findOne({ email });
+
+    if (findEmail && findEmail?._id) {
+      throw new BadRequestError('Admin with email found');
+    }
+  }
 
   const admin = await AdminModel.create({ ...data });
 

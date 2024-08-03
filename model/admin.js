@@ -27,7 +27,6 @@ const Admin = mongoose.Schema({
       'Please provide a valid email',
     ],
     lowercase: true,
-    unique: true,
   },
   password: {
     type: String,
