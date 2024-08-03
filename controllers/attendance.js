@@ -158,27 +158,20 @@ const GenerateTotalAttendance = async (req, res) => {
 };
 
 const CaptureAutoAttendance = async (req, res) => {
-  const { activityId, memberName, memberPhone, date, memberId } = req.body;
+  const { activityId, memberId } = req.body;
 
-  const type = memberId || memberPhone || memberName ? true : false;
+  //var todaysDate = new Date().getHours();
 
-  if (!date) {
-    throw new BadRequestError('missing date of service');
-  }
+  //! check if church has ended
+  // if (todaysDate > 12) {
+  //   throw new BadRequestError('Date is in the past or future date');
+  // }
 
-  if (!type) {
-    throw new BadRequestError("missing member's info");
+  if (!memberId) {
+    throw new NotFoundError('Missing memberId or activityId.');
   }
 
   let queryObject = {};
-
-  if (memberName) {
-    queryObject.firstName = memberName;
-  }
-
-  if (memberPhone) {
-    queryObject.phone = memberPhone;
-  }
 
   if (memberId) {
     queryObject._id = memberId;
@@ -189,10 +182,9 @@ const CaptureAutoAttendance = async (req, res) => {
     throw new NotFoundError('Member not yet registered.');
   }
 
-  const activity = await ActivitiesModel.findOne({ date: date });
+  const activity = await ActivitiesModel.findOne({ _id: activityId });
 
-  console.log(activity, 'activity');
-  if (!activity && !activity._id) {
+  if (!activity && !activity?._id) {
     throw new NotFoundError(`Activity with ID: ${activityId} not found`);
   }
 
@@ -200,69 +192,65 @@ const CaptureAutoAttendance = async (req, res) => {
     (c) => c.serviceId?.toString() === activityId?.toString()
   );
 
-  res.send('hello');
-
-  // if (
-  //   checkAttendance?.length > 0 &&
-  //   checkAttendance[0]?.attendance === 'Present'
-  // ) {
-  //   throw new BadRequestError(
-  //     `${findMember.firstName} already marked present for this activity`
-  //   );
-  // } else if (checkAttendance?.length <= 0) {
-  //   const attendance = {
-  //     date: activity.date,
-  //     serviceName: activity.serviceName,
-  //     serviceId: activity._id,
-  //     attendance: 'Present',
-  //   };
-  //   await MembersModel.findOneAndUpdate(
-  //     { _id: findMember._id },
-  //     {
-  //       $push: {
-  //         attendance,
-  //       },
-  //     },
-  //     {
-  //       new: true,
-  //     }
-  //   )
-  //     .then((doc) => {
-  //       return res
-  //         .status(StatusCodes.OK)
-  //         .json({ mesage: `${findMember.firstName} attendance captured` });
-  //     })
-  //     .catch((error) => {
-  //       return res
-  //         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-  //         .json({ mesage: error.message });
-  //     });
-  // } else {
-  //   await MembersModel.updateOne(
-  //     { _id: findMember._id, 'attendance.serviceId': activity._id },
-  //     {
-  //       $set: {
-  //         'attendance.$.attendance': 'Present',
-  //         'attendance.$.time': new Date().toLocaleTimeString(),
-  //       },
-  //     }
-  //   )
-  //     .then((doc) => {
-  //       if (doc?.acknowledged) {
-  //         res
-  //           .status(StatusCodes.OK)
-  //           .json({ mesage: `${findMember.firstName} attendance captured` });
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       res
-  //         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-  //         .json({ mesage: error.message });
-  //     });
-  // }
+  if (
+    checkAttendance?.length > 0 &&
+    checkAttendance[0]?.attendance === 'Present'
+  ) {
+    throw new BadRequestError(
+      `${findMember.firstName} already marked present for this activity`
+    );
+  } else if (checkAttendance?.length <= 0) {
+    const attendance = {
+      date: activity.date,
+      serviceName: activity.serviceName,
+      serviceId: activity._id,
+      attendance: 'Present',
+    };
+    await MembersModel.findOneAndUpdate(
+      { _id: findMember._id },
+      {
+        $push: {
+          attendance,
+        },
+      },
+      {
+        new: true,
+      }
+    )
+      .then((doc) => {
+        return res
+          .status(StatusCodes.OK)
+          .json({ mesage: `${findMember.firstName} attendance captured` });
+      })
+      .catch((error) => {
+        return res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ mesage: error.message });
+      });
+  } else {
+    await MembersModel.updateOne(
+      { _id: findMember._id, 'attendance.serviceId': activity._id },
+      {
+        $set: {
+          'attendance.$.attendance': 'Present',
+          'attendance.$.time': new Date().toLocaleTimeString(),
+        },
+      }
+    )
+      .then((doc) => {
+        if (doc?.acknowledged) {
+          res
+            .status(StatusCodes.OK)
+            .json({ mesage: `${findMember.firstName} attendance captured` });
+        }
+      })
+      .catch((error) => {
+        res
+          .status(StatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ mesage: error.message });
+      });
+  }
 };
-
-
 
 module.exports = {
   CaptureAttendance,

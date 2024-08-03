@@ -85,6 +85,44 @@ const router = express.Router();
  *      500:
  *        description: Server Error
  */
+
+
+/** POST Methods */
+/**
+ * @openapi
+ * '/attendance/auto':
+ *  post:
+ *     security:
+ *     - bearerAuth: []
+ *     tags:
+ *     - Attendance Controller
+ *     summary: Create attendance
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - activityId
+ *              - memberId
+ *            properties:
+ *              activityId:
+ *                type: string
+ *                default: ''
+ *              memberId:
+ *                type: string
+ *                default: ''
+ *     responses:
+ *      201:
+ *        description: Created
+ *      409:
+ *        description: Conflict
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Server Error
+ */
 router.route('/').post(CaptureAttendance);
 router.route('/total').post(GenerateTotalAttendance);
 router.route('/auto').post(CaptureAutoAttendance);
