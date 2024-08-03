@@ -25,9 +25,9 @@ const CreateActivities = async (req, res) => {
   const year = new Date(date).getFullYear();
 
   await ActivitiesModel.create({
-    date: `${day.toString()?.padStart(2, '0')}-${month
+    date: `${day.toString()?.padStart(2, '0')}/${month
       .toString()
-      ?.padStart(2, '0')}-${year}`,
+      ?.padStart(2, '0')}/${year}`,
     serviceName,
     createdBy: req.user.name,
   })
@@ -77,8 +77,6 @@ const GetActivities = async (req, res) => {
   if (serviceName) {
     queryObject.serviceName = serviceName;
   }
-
-  console.log(date);
 
   let data = ActivitiesModel.find(queryObject)
     .skip(pageOptions.page * pageOptions.limit)
@@ -196,9 +194,9 @@ const GetCaptureActivity = async (req, res) => {
     const year = new Date(date).getFullYear();
 
     await ActivitiesModel.create({
-      date: `${day.toString()?.padStart(2, '0')}-${month
+      date: `${day.toString()?.padStart(2, '0')}/${month
         .toString()
-        ?.padStart(2, '0')}-${year}`,
+        ?.padStart(2, '0')}/${year}`,
       serviceName: 'Sunday Service',
       createdBy: req.user.name,
     })

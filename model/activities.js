@@ -6,7 +6,7 @@ const Activities = mongoose.Schema(
       type: String,
       validate: {
         validator: function (v) {
-          return /^\d{2}-\d{2}-\d{4}$/.test(v);
+          return /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/.test(v);
         },
         message: (props) =>
           `${props.value} is not a valid date, please enter MM/DD/YYYY.`,
