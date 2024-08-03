@@ -1,6 +1,7 @@
 const {
   CaptureAttendance,
   GenerateTotalAttendance,
+  CaptureAutoAttendance
 } = require('../controllers/attendance');
 const express = require('express');
 
@@ -86,5 +87,7 @@ const router = express.Router();
  */
 router.route('/').post(CaptureAttendance);
 router.route('/total').post(GenerateTotalAttendance);
+router.route('/auto').post(CaptureAutoAttendance);
+
 
 module.exports = router;

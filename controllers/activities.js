@@ -62,7 +62,7 @@ const CreateActivities = async (req, res) => {
 };
 
 const GetActivities = async (req, res) => {
-  const { date, serviceName } = req.params;
+  const { date, serviceName } = req.query;
 
   const pageOptions = {
     page: parseInt(req.query.page - 1, 10) || 0,
@@ -77,6 +77,8 @@ const GetActivities = async (req, res) => {
   if (serviceName) {
     queryObject.serviceName = serviceName;
   }
+
+  console.log(date)
 
   let data = ActivitiesModel.find(queryObject)
     .skip(pageOptions.page * pageOptions.limit)
@@ -134,8 +136,61 @@ const CaptureActivityforMember = async (req, res) => {
     }
   );
 };
+
+const GetCaptureActivity = async (req, res) => {
+  const { date } = req.body;
+
+  if (!date) {
+    throw new BadRequestError('Date is missing');
+  }
+
+  Date.prototype.isValid = function () {
+    return this.getTime() === this.getTime();
+  };
+
+  var d = new Date(date);
+  if (!d.isValid()) {
+    throw new BadRequestError('Date is invalid');
+  }
+
+  let queryObject = {};
+  if (date) {
+    queryObject.date = date;
+  }
+
+  const activity = await ActivitiesModel.findOne(queryObject);
+
+  if (activity && activity?._id) {
+    res.status(StatusCodes.OK).json({
+      data: activity,
+    });
+  } else {
+    const getDay = new Date(date).getDay();
+    const getTime = new Date(date).getTime();
+ 
+    if (getDay == NaN) {
+      throw new BadRequestError('Invalid Date');
+    }
+
+    if (getTime == NaN) {
+      throw new BadRequestError('Invalid Date');
+    }
+    if (getDay > 0) {
+      throw new BadRequestError(
+        'Activity can only be created for sunday service for now.'
+      );
+    }
+
+    const month = new Date(date).getMonth() + 1;
+    const day = new Date(date).getDate();
+    const year = new Date(date).getFullYear();
+    console.log(getTime, 'get');
+    res.send('hello');
+  }
+};
 module.exports = {
   CreateActivities,
   GetActivities,
   CaptureActivityforMember,
+  GetCaptureActivity,
 };

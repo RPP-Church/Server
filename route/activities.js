@@ -2,6 +2,7 @@ const {
   CreateActivities,
   GetActivities,
   CaptureActivityforMember,
+  GetCaptureActivity,
 } = require('../controllers/activities');
 const express = require('express');
 
@@ -73,5 +74,5 @@ const router = express.Router();
  */
 router.route('/').post(CreateActivities).get(GetActivities);
 router.route('/member').post(CaptureActivityforMember);
-
+router.route('/auto').post(GetCaptureActivity);
 module.exports = router;
