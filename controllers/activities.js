@@ -63,6 +63,12 @@ const CreateActivities = async (req, res) => {
 
 const GetActivities = async (req, res) => {
   const { date, serviceName } = req.params;
+
+  const pageOptions = {
+    page: parseInt(req.query.page - 1, 10) || 0,
+    limit: parseInt(req.query.limit, 10) || 10,
+  };
+
   let queryObject = {};
 
   if (date) {
@@ -72,11 +78,27 @@ const GetActivities = async (req, res) => {
     queryObject.serviceName = serviceName;
   }
 
-  let data = ActivitiesModel.find(queryObject);
+  let data = ActivitiesModel.find(queryObject)
+    .skip(pageOptions.page * pageOptions.limit)
+    .limit(pageOptions.limit)
+    .sort([['createdAt', -1]]);
+
+  const Count = await ActivitiesModel.countDocuments(queryObject);
 
   const result = await data;
 
-  res.status(StatusCodes.OK).json(result);
+  const totalPage = Math.round(Count / pageOptions.limit);
+
+  const pagination =
+    Math.round(Count % pageOptions.limit) === 0 ? totalPage : totalPage + 1;
+  res.status(StatusCodes.OK).json({
+    data: result,
+    length: result.length,
+    totalElement: Count,
+    totalPage: pagination,
+    numberofElement: result?.length,
+    current: pageOptions?.page,
+  });
 };
 
 const CaptureActivityforMember = async (req, res) => {
