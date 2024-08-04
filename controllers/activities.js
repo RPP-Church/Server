@@ -240,9 +240,7 @@ const GetCaptureActivity = async (req, res) => {
             new: true,
           }
         );
-        res
-          .status(StatusCodes.CREATED)
-          .json({ mesage: `${doc.serviceName} created` });
+        res.status(StatusCodes.CREATED).json({ data: doc });
       })
       .catch((error) => {
         res
