@@ -278,40 +278,40 @@ const generateXLS = ({ data, type, activityName, activityId }) => {
       });
 
       const endRow = worksheetPresent.lastRow._number + 1;
-
+      const endRowAbsent = workSheetAbsent.lastRow._number + 1;
       rowIndex += data.length;
 
-      worksheetPresent.getCell(`A${endRow}`).value = 'Female Total';
-      worksheetPresent.getCell(`B${endRow}`).value = totalFemaleAdult;
-      worksheetPresent.getCell(`A${endRow + 1}`).value = 'Male Total';
-      worksheetPresent.getCell(`B${endRow + 1}`).value = totalMaleAdult;
-      worksheetPresent.getCell(`A${endRow + 2}`).value =
+      worksheetPresent.getCell(`A${endRow + 2}`).value = 'Female Total';
+      worksheetPresent.getCell(`B${endRow + 2}`).value = totalFemaleAdult;
+      worksheetPresent.getCell(`A${endRow + 3}`).value = 'Male Total';
+      worksheetPresent.getCell(`B${endRow + 3}`).value = totalMaleAdult;
+      worksheetPresent.getCell(`A${endRow + 4}`).value =
         'Female Teengers Total';
-      worksheetPresent.getCell(`B${endRow + 2}`).value = totalFemaleTeen;
-      worksheetPresent.getCell(`A${endRow + 3}`).value = 'Male Teengers Total';
-      worksheetPresent.getCell(`B${endRow + 3}`).value = totalMaleTeen;
-      worksheetPresent.getCell(`A${endRow + 4}`).value = 'Children';
-      worksheetPresent.getCell(`B${endRow + 4}`).value = totalChildren;
-      worksheetPresent.getCell(`A${endRow + 5}`).value = 'TOTAL';
-      worksheetPresent.getCell(`B${endRow + 5}`).value =
+      worksheetPresent.getCell(`B${endRow + 4}`).value = totalFemaleTeen;
+      worksheetPresent.getCell(`A${endRow + 5}`).value = 'Male Teengers Total';
+      worksheetPresent.getCell(`B${endRow + 5}`).value = totalMaleTeen;
+      worksheetPresent.getCell(`A${endRow + 6}`).value = 'Children';
+      worksheetPresent.getCell(`B${endRow + 6}`).value = totalChildren;
+      worksheetPresent.getCell(`A${endRow + 7}`).value = 'TOTAL';
+      worksheetPresent.getCell(`B${endRow + 7}`).value =
         totalChildren +
         totalFemaleAdult +
         totalFemaleTeen +
         totalMaleAdult +
         totalMaleTeen;
 
-      workSheetAbsent.getCell(`A${endRow}`).value = 'Female Total';
-      workSheetAbsent.getCell(`B${endRow}`).value = totalFemaleAdultp;
-      workSheetAbsent.getCell(`A${endRow + 1}`).value = 'Male Total';
-      workSheetAbsent.getCell(`B${endRow + 1}`).value = totalMaleAdultp;
-      workSheetAbsent.getCell(`A${endRow + 2}`).value = 'Female Teengers Total';
-      workSheetAbsent.getCell(`B${endRow + 2}`).value = totalFemaleTeenp;
-      workSheetAbsent.getCell(`A${endRow + 3}`).value = 'Male Teengers Total';
-      workSheetAbsent.getCell(`B${endRow + 3}`).value = totalMaleTeenp;
-      workSheetAbsent.getCell(`A${endRow + 4}`).value = 'Children';
-      workSheetAbsent.getCell(`B${endRow + 4}`).value = totalChildrenp;
-      workSheetAbsent.getCell(`A${endRow + 5}`).value = 'TOTAL';
-      workSheetAbsent.getCell(`B${endRow + 5}`).value =
+      workSheetAbsent.getCell(`A${endRowAbsent + 3}`).value = 'Female Total';
+      workSheetAbsent.getCell(`B${endRowAbsent + 3}`).value = totalFemaleAdultp;
+      workSheetAbsent.getCell(`A${endRowAbsent + 4}`).value = 'Male Total';
+      workSheetAbsent.getCell(`B${endRowAbsent + 4}`).value = totalMaleAdultp;
+      workSheetAbsent.getCell(`A${endRowAbsent + 5}`).value = 'Female Teengers Total';
+      workSheetAbsent.getCell(`B${endRowAbsent + 5}`).value = totalFemaleTeenp;
+      workSheetAbsent.getCell(`A${endRowAbsent + 6}`).value = 'Male Teengers Total';
+      workSheetAbsent.getCell(`B${endRowAbsent + 6}`).value = totalMaleTeenp;
+      workSheetAbsent.getCell(`A${endRowAbsent + 7}`).value = 'Children';
+      workSheetAbsent.getCell(`B${endRowAbsent + 7}`).value = totalChildrenp;
+      workSheetAbsent.getCell(`A${endRowAbsent + 8}`).value = 'TOTAL';
+      workSheetAbsent.getCell(`B${endRowAbsent + 8}`).value =
         totalChildrenp +
         totalFemaleAdultp +
         totalFemaleTeenp +
@@ -339,6 +339,16 @@ const generateXLS = ({ data, type, activityName, activityId }) => {
           };
         });
       });
+
+        // Loop through all cells and apply the border style
+        worksheetPresent.eachRow((row, rowNumber) => {
+          row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+            cell.border = {
+              top: borderStyle,
+              bottom: borderStyle,
+            };
+          });
+        });
 
       // Generate the XLS file
       return workbook.xlsx.writeBuffer();
