@@ -189,7 +189,7 @@ const GetCaptureActivity = async (req, res) => {
     const getTime = inputDate?.getHours();
     var todaysDate = new Date();
 
-    if (getTime > 11) {
+    if (getTime > 16) {
       throw new BadRequestError('Activity cannot be created after past 11am');
     }
 
