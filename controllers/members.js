@@ -2,6 +2,7 @@ const { BadRequestError, NotFoundError } = require('../errors');
 const MembersModel = require('../model/members');
 const ActivitiesModel = require('../model/activities');
 const { StatusCodes } = require('http-status-codes');
+const SendEmail = require('../middleware/sendEmail');
 
 const GetASingleMember = async (req, res) => {
   const { id } = req.params;
@@ -35,7 +36,7 @@ const GetUser = async (req, res) => {
     dob,
     phone,
     category,
-    lastName
+    lastName,
   } = req.query;
 
   const pageOptions = {
@@ -289,10 +290,33 @@ const DeleteUser = async (req, res) => {
     .json({ mesage: `${user.firstName} sucessfully deleted` });
 };
 
+const AutoUpdateMember = async (todayDay) => {
+  await MembersModel.updateMany(
+    { membershipType: 'New Member' },
+    { membershipType: 'Existing Member' }
+  )
+    .then((doc) => {
+      let message = `
+        <div>
+            <h2>Hi! Victor</h2>
+            <div>
+                <p>Total Number of New Member's for
+                today service ${todayDay} is ${doc.modifiedCount}
+                </p>
+            </div>
+        </div>
+      `;
+
+      SendEmail({ message });
+    })
+    .catch((error) => {});
+};
+
 module.exports = {
   CreateUser,
   UpdateUser,
   GetUser,
   DeleteUser,
   GetASingleMember,
+  AutoUpdateMember,
 };

@@ -1,5 +1,12 @@
-const { CreateAdmin, LoginAdmin } = require('../controllers/auth.js');
+const {
+  CreateAdmin,
+  LoginAdmin,
+  GetSingleAdmin,
+  UpdateSingleAdmin,
+  UpdatePassword
+} = require('../controllers/auth.js');
 const express = require('express');
+const auth = require('../middleware/authentication');
 
 const router = express.Router();
 
@@ -18,13 +25,25 @@ const router = express.Router();
  *           schema:
  *            type: object
  *            required:
- *              - name
+ *              - firstName
+ *              - lastName
+ *              - gender
  *              - phone
  *              - password
+ *              - email
  *            properties:
- *              name:
+ *              firstName:
  *                type: string
- *                default: johndoe
+ *                default: john
+ *              lastName:
+ *                type: string
+ *                default: doe
+ *              gender:
+ *                type: string
+ *                default: ''
+ *              email:
+ *                type: string
+ *                default: ''
  *              phone:
  *                type: string
  *                default: 09012345675
@@ -42,7 +61,6 @@ const router = express.Router();
  *        description: Server Error
  */
 
-
 /** POST Methods */
 /**
  * @openapi
@@ -50,7 +68,7 @@ const router = express.Router();
  *  post:
  *     tags:
  *     - Admin Controller
- *     summary: Login 
+ *     summary: Login
  *     requestBody:
  *      required: true
  *      content:
@@ -77,8 +95,77 @@ const router = express.Router();
  *      500:
  *        description: Server Error
  */
+
+/** GET Methods */
+/**
+ * @openapi
+ * '/single/{id}':
+ *  get:
+ *     security:
+ *     - bearerAuth: []
+ *     tags:
+ *     - Admin Controller
+ *     summary: Get single admin
+ *     parameters:
+ *      - id: id
+ *        in: path
+ *        description: The userId of admin
+ *     responses:
+ *      200:
+ *        description: Fetched Successfully
+ *      400:
+ *        description: Bad Request
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Server Error
+ */
+
+/** PUT Methods */
+/**
+ * @openapi
+ * '/single/{id}':
+ *  put:
+ *     security:
+ *     - bearerAuth: []
+ *     tags:
+ *     - Admin Controller
+ *     summary: Modify an admin
+ *     parameters:
+ *      - name: id
+ *        in: path
+ *        description: The unique Id of the admin
+ *        required: true
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *           schema:
+ *            type: object
+ *            required:
+ *              - _id
+ *            properties:
+ *              phone:
+ *                type: string
+ *                default: ''
+ *              email:
+ *                type: string
+ *                default: ''
+ *     responses:
+ *      200:
+ *        description: Modified
+ *      400:
+ *        description: Bad Request
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Server Error
+ */
+
 router.post('/register', CreateAdmin);
 router.post('/login', LoginAdmin);
 router.get('/', LoginAdmin);
-
+router.get('/single/:id', auth, GetSingleAdmin);
+router.put('/single/:id', auth, UpdateSingleAdmin);
+router.put('/single/password/:id', auth, UpdatePassword);
 module.exports = router;

@@ -2,7 +2,6 @@ require('dotenv').config();
 require('express-async-errors');
 const connectDb = require('./Db/connect');
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const auth = require('./middleware/authentication');
@@ -15,6 +14,7 @@ const openRoute = require('./route/openRoute');
 const activitiesRoute = require('./route/activities');
 const attendanceRoute = require('./route/attendance');
 const swaggerUI = require('swagger-ui-express');
+const cron = require('node-cron');
 const app = express();
 
 //Error handler
@@ -51,9 +51,11 @@ const corsConfig = {
 };
 const helmet = require('helmet');
 const xss = require('xss-clean');
+const SendEmail = require('./middleware/sendEmail');
+const { AutoUpdateMember } = require('./controllers/members');
 app.use(cors(corsConfig));
 app.options('*', cors(corsConfig));
- app.use(express.json());
+app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
 
@@ -74,13 +76,29 @@ app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT || 5000;
 
+const scheduleTask = async () => {
+  const task = cron.schedule(
+    '* 12 * * Sunday',
+    () => {
+      // const transporter = SendEmail();
+      const todayDay = new Date().toLocaleString();
+      AutoUpdateMember(todayDay);
+    },
+    {
+      scheduled: false,
+    }
+  );
+  task.start();
+};
+
 const start = async () => {
   try {
     await connectDb(process.env.MONGO_URI);
 
-    app.listen(port, () =>
-      console.log(`Server is listening on port ${port}...`)
-    );
+    app.listen(port, () => {
+      scheduleTask();
+      console.log(`Server is listening on port ${port}...`);
+    });
     // swaggerDocs(app, port);
   } catch (error) {
     console.log(error);

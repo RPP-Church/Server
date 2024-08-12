@@ -3,9 +3,15 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const Admin = mongoose.Schema({
-  name: {
+  firstName: {
     type: String,
-    required: [true, 'Please provide a name'],
+    required: [true, 'Please provide a firstName'],
+    maxlength: 50,
+    trim: true,
+  },
+  lastName: {
+    type: String,
+    required: [true, 'Please provide a lastName'],
     maxlength: 50,
     trim: true,
   },
@@ -20,6 +26,11 @@ const Admin = mongoose.Schema({
       'Please provide a phone number e.g 09012345678',
     ],
   },
+  gender: {
+    type: String,
+    required: [true, 'Please provide gender'],
+    enum: ['Male', 'Female'],
+  },
   email: {
     type: String,
     match: [
@@ -27,6 +38,7 @@ const Admin = mongoose.Schema({
       'Please provide a valid email',
     ],
     lowercase: true,
+    required: [true, 'Please provide email'],
   },
   password: {
     type: String,
@@ -71,6 +83,13 @@ Admin.methods.RefreshJWT = function () {
 Admin.methods.comparePassword = async function (canditatePassword) {
   const isMatch = await bcrypt.compare(canditatePassword, this.password);
   return isMatch;
+};
+
+Admin.methods.saltPassword = async function (password) {
+  const salt = await bcrypt.genSalt(10);
+  const newPassword = await bcrypt.hash(password, salt);
+
+  return newPassword;
 };
 
 module.exports = mongoose.model('Admin', Admin);
