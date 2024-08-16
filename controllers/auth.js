@@ -123,7 +123,7 @@ const LoginAdmin = async (req, res) => {
     maxAge: 24 * 60 * 60 * 1000,
   });
 
-  res.status(StatusCodes.OK).json({ name: user.name, token, userId: user._id });
+  res.status(StatusCodes.OK).json({ name: user.firstName, token, userId: user._id });
 };
 
 const GetSingleAdmin = async (req, res) => {
