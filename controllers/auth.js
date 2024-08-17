@@ -54,10 +54,31 @@ const CreateAdmin = async (req, res) => {
               </div>
         
         `;
-        SendEmail({ message, title: 'RPP Admin Login Created' });
+
+        const msg = {
+          from: {
+            email: 'okoromivic@gmail.com',
+          },
+          personalizations: [
+            {
+              to: [
+                {
+                  email: 'okoromivic@gmail.com',
+                },
+              ],
+              dynamic_template_data: {
+                first_name: doc.firstName,
+                password: password,
+                phone: doc.phone,
+              },
+            },
+          ],
+          templateId: 'd-194c8826c94149f9bde3b8ba9cf409bd',
+        };
+        SendEmail({ msg });
       }
 
-      res.status(StatusCodes.OK).json({ name: doc.name });
+      res.status(StatusCodes.OK).json({ name: doc.firstName });
     })
     .catch((error) => {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
@@ -123,7 +144,10 @@ const LoginAdmin = async (req, res) => {
     maxAge: 24 * 60 * 60 * 1000,
   });
 
-  res.status(StatusCodes.OK).json({ name: user.firstName, token, userId: user._id });
+  console.log(user);
+  res
+    .status(StatusCodes.OK)
+    .json({ name: user.firstName, token, userId: user._id });
 };
 
 const GetSingleAdmin = async (req, res) => {
@@ -198,5 +222,5 @@ module.exports = {
   LoginAdmin,
   GetSingleAdmin,
   UpdateSingleAdmin,
-  UpdatePassword
+  UpdatePassword,
 };

@@ -140,7 +140,7 @@ const GenerateTotalAttendance = async (req, res) => {
     },
   })
     .then(async (doc) => {
-      const { female, male, child, teenFemale, teenMale, total, exc } =
+      const { exc } =
         await CalculateTotal({
           data: doc,
           type,
@@ -251,6 +251,8 @@ const CaptureAutoAttendance = async (req, res) => {
       });
   }
 };
+
+
 
 module.exports = {
   CaptureAttendance,

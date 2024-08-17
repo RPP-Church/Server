@@ -78,11 +78,10 @@ const port = process.env.PORT || 5000;
 
 const scheduleTask = async () => {
   const task = cron.schedule(
-    '* 12 * * Sunday',
+    '* 15 * * Sunday',
     () => {
-      // const transporter = SendEmail();
-      const todayDay = new Date().toLocaleString();
-      AutoUpdateMember(todayDay);
+      const activityDate = new Date().toISOString()?.slice(0, 10);
+      AutoUpdateMember({ activityDate });
     },
     {
       scheduled: false,

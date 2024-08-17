@@ -1,6 +1,12 @@
 const ExcelJS = require('exceljs');
-
-const generateXLS = ({ data, type, activityName, activityId }) => {
+const fs = require('fs');
+const generateXLS = async ({
+  data,
+  type,
+  activityId,
+  sendReport,
+  fileName,
+}) => {
   try {
     const workbook = new ExcelJS.Workbook();
 
@@ -304,9 +310,11 @@ const generateXLS = ({ data, type, activityName, activityId }) => {
       workSheetAbsent.getCell(`B${endRowAbsent + 3}`).value = totalFemaleAdultp;
       workSheetAbsent.getCell(`A${endRowAbsent + 4}`).value = 'Male Total';
       workSheetAbsent.getCell(`B${endRowAbsent + 4}`).value = totalMaleAdultp;
-      workSheetAbsent.getCell(`A${endRowAbsent + 5}`).value = 'Female Teengers Total';
+      workSheetAbsent.getCell(`A${endRowAbsent + 5}`).value =
+        'Female Teengers Total';
       workSheetAbsent.getCell(`B${endRowAbsent + 5}`).value = totalFemaleTeenp;
-      workSheetAbsent.getCell(`A${endRowAbsent + 6}`).value = 'Male Teengers Total';
+      workSheetAbsent.getCell(`A${endRowAbsent + 6}`).value =
+        'Male Teengers Total';
       workSheetAbsent.getCell(`B${endRowAbsent + 6}`).value = totalMaleTeenp;
       workSheetAbsent.getCell(`A${endRowAbsent + 7}`).value = 'Children';
       workSheetAbsent.getCell(`B${endRowAbsent + 7}`).value = totalChildrenp;
@@ -340,18 +348,29 @@ const generateXLS = ({ data, type, activityName, activityId }) => {
         });
       });
 
-        // Loop through all cells and apply the border style
-        worksheetPresent.eachRow((row, rowNumber) => {
-          row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-            cell.border = {
-              top: borderStyle,
-              bottom: borderStyle,
-            };
-          });
+      // Loop through all cells and apply the border style
+      worksheetPresent.eachRow((row, rowNumber) => {
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+          cell.border = {
+            top: borderStyle,
+            bottom: borderStyle,
+          };
         });
+      });
 
-      // Generate the XLS file
-      return workbook.xlsx.writeBuffer();
+      // Generate the XLS file and save excel file
+      if (sendReport) {
+        var dir = './report';
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        await workbook.xlsx
+          .writeFile(`${dir}/${fileName}.xlsx`)
+          .then(() => console.log('File saved!'));
+        return 'File saved!';
+      } else {
+        return workbook.xlsx.writeBuffer();
+      }
     } else {
       const worksheet = workbook.addWorksheet(`List of ${type} count `, {
         pageSetup: { paperSize: 9, orientation: 'landscape' },

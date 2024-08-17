@@ -100,6 +100,11 @@ const Members = mongoose.Schema(
       // required: [true, 'Please provide a valid date of birth'],
     },
     attendance: [attendanceSchema],
+    memberId: {
+      type: String,
+      required: [true, 'No member Id found'],
+      unique: true,
+    },
   },
 
   { timestamps: true }
