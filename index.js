@@ -56,7 +56,22 @@ app.use(cors(corsConfig));
 app.options('*', cors(corsConfig));
 app.use(express.json());
 app.use(cookieParser());
-app.use(helmet());
+app.use(
+  helmet({
+    frameguard: {
+      // configure
+      action: 'deny',
+    },
+    contentSecurityPolicy: {
+      // enable and configure
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", 'trusted-cdn.com'],
+      },
+    },
+    dnsPrefetchControl: false, // disable
+  })
+);
 
 app.use(xss());
 //Routes
