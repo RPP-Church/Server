@@ -12,7 +12,7 @@ const auth = async (req, res, next) => {
   try {
     const token = jwt.verify(bearer, process.env.JWT_SECRET);
 
-    req.user = { userId: token.userId, name: token.name };
+    req.user = { userId: token.userId, name: token.firstName };
     next();
   } catch (error) {
     throw new UnauthenticatedError('Unauthorized access');
