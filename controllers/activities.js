@@ -1,4 +1,4 @@
-const { BadRequestError } = require('../errors');
+I'mconst { BadRequestError } = require('../errors');
 const ActivitiesModel = require('../model/activities');
 const { StatusCodes } = require('http-status-codes');
 const MembersModel = require('../model/members');
@@ -219,7 +219,7 @@ const GetCaptureActivity = async (req, res) => {
         .toString()
         ?.padStart(2, '0')}/${year}`,
       serviceName: 'Sunday Service',
-      createdBy: req.user.name,
+      createdBy: req.user.firstName,
     })
       .then(async (doc) => {
         const attendance = {
