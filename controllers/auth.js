@@ -63,7 +63,7 @@ const CreateAdmin = async (req, res) => {
             {
               to: [
                 {
-                  email: doc.email,
+                  email: email,
                 },
               ],
               dynamic_template_data: {
