@@ -51,7 +51,6 @@ const corsConfig = {
 };
 const helmet = require('helmet');
 const xss = require('xss-clean');
-const SendEmail = require('./middleware/sendEmail');
 const { AutoUpdateMember } = require('./controllers/members');
 app.use(cors(corsConfig));
 app.options('*', cors(corsConfig));

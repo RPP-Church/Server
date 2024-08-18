@@ -3,6 +3,7 @@ const MembersModel = require('../model/members');
 const ActivitiesModel = require('../model/activities');
 const { StatusCodes } = require('http-status-codes');
 const CalculateTotal = require('../middleware/calculateTotal');
+const SendEmail = require('../middleware/sendEmail');
 
 const CaptureAttendance = async (req, res) => {
   const { activityId, memberName, memberPhone, memberId } = req.body;
@@ -119,16 +120,6 @@ const GenerateTotalAttendance = async (req, res) => {
   //! check current time to make sure service has ended
   //! this should be a cron job later
 
-  // let queryObject = {
-  //   attendance: {
-  //     $elemMatch: { serviceId: activity._id, attendance: type },
-  //   },
-  // }
-  // if(type) {
-
-  //     $elemMatch: { serviceId: activity._id, attendance: type },
-
-  // }
   let queryObject = { serviceId: activity._id };
   if (type) {
     queryObject.attendance = type;
@@ -140,13 +131,21 @@ const GenerateTotalAttendance = async (req, res) => {
     },
   })
     .then(async (doc) => {
-      const { exc } =
-        await CalculateTotal({
-          data: doc,
-          type,
-          activityId,
-          activityName: activity.name,
-        });
+      const { exc } = await CalculateTotal({
+        data: doc,
+        type,
+        activityId,
+        activityName: activity.name,
+      });
+
+      const msg = {
+        from: 'okoromivic@gmail.com',
+        to: 'okoromivic@gmail.com',
+        subject: 'Activity download initiated',
+        html: `<p>${req.user.name} just initiated a downdload for ${activity.name}-${activity.date}`
+      };
+
+      SendEmail({ msg });
 
       res.send(exc);
     })
@@ -251,8 +250,6 @@ const CaptureAutoAttendance = async (req, res) => {
       });
   }
 };
-
-
 
 module.exports = {
   CaptureAttendance,
