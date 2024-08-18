@@ -63,7 +63,7 @@ Admin.pre('save', async function (next) {
 
 Admin.methods.CreateJWT = function () {
   return jwt.sign(
-    { userId: this._id, name: this.name },
+    { userId: this._id, name: this.firstName },
     process.env.JWT_SECRET,
     {
       expiresIn: '1d',
@@ -73,7 +73,7 @@ Admin.methods.CreateJWT = function () {
 
 Admin.methods.RefreshJWT = function () {
   return jwt.sign(
-    { userId: this._id, name: this.name },
+    { userId: this._id, name: this.firstName },
     process.env.REFRESH_TOKEN,
     {
       expiresIn: '7d',

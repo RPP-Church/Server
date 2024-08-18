@@ -133,6 +133,7 @@ const LoginAdmin = async (req, res) => {
     { new: true }
   );
 
+
   res.setHeader(
     'Set-Cookie',
     cookie.serialize('foo', 'bar', { httpOnly: true })
@@ -144,7 +145,6 @@ const LoginAdmin = async (req, res) => {
     maxAge: 24 * 60 * 60 * 1000,
   });
 
-  console.log(user);
   res
     .status(StatusCodes.OK)
     .json({ name: user.firstName, token, userId: user._id });

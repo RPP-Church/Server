@@ -42,7 +42,7 @@ const CreateActivities = async (req, res) => {
       .toString()
       ?.padStart(2, '0')}/${year}`,
     serviceName,
-    createdBy: req.user.firstName,
+    createdBy: req.user.name,
   })
     .then(async (doc) => {
       const attendance = {
@@ -219,7 +219,7 @@ const GetCaptureActivity = async (req, res) => {
         .toString()
         ?.padStart(2, '0')}/${year}`,
       serviceName: 'Sunday Service',
-      createdBy: req.user.firstName,
+      createdBy: req.user.name,
     })
       .then(async (doc) => {
         const attendance = {
