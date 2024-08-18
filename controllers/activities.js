@@ -1,4 +1,4 @@
-I'mconst { BadRequestError } = require('../errors');
+const { BadRequestError } = require('../errors');
 const ActivitiesModel = require('../model/activities');
 const { StatusCodes } = require('http-status-codes');
 const MembersModel = require('../model/members');
