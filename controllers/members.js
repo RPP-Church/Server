@@ -235,7 +235,9 @@ const UpdateUser = async (req, res) => {
     throw new NotFoundError('User not found');
   }
 
-  let data = {};
+  let data = {
+    updatedBy: req.user.name
+  };
 
   if (firstName) {
     data.firstName = firstName;

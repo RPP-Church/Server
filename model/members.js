@@ -82,7 +82,7 @@ const Members = mongoose.Schema(
     departments: [departmentSchema],
     membershipType: {
       type: String,
-      enum: ['Existing Member', 'New Member'],
+      enum: ['Existing Member', 'New Member', 'Visitor'],
     },
     joinedDate: {
       type: Date,
@@ -105,6 +105,7 @@ const Members = mongoose.Schema(
       required: [true, 'No member Id found'],
       unique: true,
     },
+    updatedBy: String,
   },
 
   { timestamps: true }

@@ -15,9 +15,15 @@ const Departments = mongoose.Schema(
       required: [true, 'Please provide a user'],
     },
     headOfDepartment: {
-      type: String,
+      type: {
+        name: String,
+        userId: {
+          type: mongoose.Types.ObjectId,
+          ref: 'Member',
+        },
+        _id: false,
+      },
       required: [true, 'Please provide head of department'],
-      trim: true,
     },
     headOfDepartmentPhone: {
       type: String,
@@ -32,8 +38,14 @@ const Departments = mongoose.Schema(
       required: [true, 'Please provide head of department phone number'],
     },
     ministerInCharge: {
-      type: String,
-      trim: true,
+      type: {
+        name: String,
+        userId: {
+          type: mongoose.Types.ObjectId,
+          ref: 'Member',
+        },
+        _id: false,
+      },
     },
     modifiedBy: {
       type: String,
