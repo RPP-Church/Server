@@ -188,22 +188,28 @@ const CreateUser = async (req, res) => {
       delete data[keys];
     }
   }
-  const activities = await ActivitiesModel.find({});
 
   const user = await MembersModel.create({ ...data })
-    .then((doc) => {
-      const allActivities = activities.map((item) => ({
-        date: item.date,
-        serviceName: item.serviceName,
-        serviceId: item._id,
-        time: item.time || '',
-        attendance: 'Absent',
-      }));
-      doc.attendance = allActivities;
-      doc.save();
-      res
-        .status(StatusCodes.CREATED)
-        .json({ mesage: `${doc.firstName} created` });
+    .then(async (doc) => {
+      if (me !== 'Visitor') {
+        const activities = await ActivitiesModel.find({});
+        const allActivities = activities.map((item) => ({
+          date: item.date,
+          serviceName: item.serviceName,
+          serviceId: item._id,
+          time: item.time || '',
+          attendance: 'Absent',
+        }));
+        doc.attendance = allActivities;
+        doc.save();
+        res
+          .status(StatusCodes.CREATED)
+          .json({ mesage: `${doc.firstName} created` });
+      } else {
+        res
+          .status(StatusCodes.CREATED)
+          .json({ mesage: `${doc.firstName} created for visitor` });
+      }
     })
     .catch((error) => {
       res
@@ -236,7 +242,7 @@ const UpdateUser = async (req, res) => {
   }
 
   let data = {
-    updatedBy: req.user.name
+    updatedBy: req.user.name,
   };
 
   if (firstName) {
