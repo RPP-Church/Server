@@ -1,8 +1,16 @@
 {
-    "apps" : [{
-      "name"        : "backendAPI",
-      "script"      : "index.js",
-      "watch"       : "../",
-      "log_date_format"  : "YYYY-MM-DD HH:mm Z"
-    }]
-  }
+  "apps" : [{
+    "name": "backendAPI",
+    "script": "index.js",
+    "watch": true,
+    "ignore_watch": ["node_modules"],
+    "watch_options": {
+      "usePolling": true,
+      "alwaysStat": true,
+      "useFsEvents": false
+    },
+    "env": {
+        "NODE_ENV": "development"
+    }
+  }]
+}
