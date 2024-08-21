@@ -2,7 +2,7 @@
   "apps" : [{
     "name": "backendAPI",
     "script": "index.js",
-    "watch": true,
+    "watch": false,
     "ignore_watch": ["node_modules"],
     "watch_options": {
       "usePolling": true,
