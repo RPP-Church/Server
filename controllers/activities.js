@@ -53,7 +53,12 @@ const CreateActivities = async (req, res) => {
       };
 
       await MembersModel.updateMany(
-        { membershipType: 'Existing Member' },
+        {
+          $or: [
+            { membershipType: 'Existing Member' },
+            { membershipType: 'New Member' },
+          ],
+        },
         {
           $push: {
             attendance,

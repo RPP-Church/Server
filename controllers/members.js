@@ -156,6 +156,7 @@ const CreateUser = async (req, res) => {
     }
   }
 
+
   // const month = dateOfBirth ? new Date(dateOfBirth).getMonth() + 1 : '';
   // const day = dateOfBirth ? new Date(dateOfBirth).getDay() + 1 : '';
 
@@ -191,7 +192,7 @@ const CreateUser = async (req, res) => {
 
   const user = await MembersModel.create({ ...data })
     .then(async (doc) => {
-      if (me !== 'Visitor') {
+      if (doc.membershipType !== 'Visitor') {
         const activities = await ActivitiesModel.find({});
         const allActivities = activities.map((item) => ({
           date: item.date,
@@ -216,10 +217,6 @@ const CreateUser = async (req, res) => {
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ mesage: error.message });
     });
-
-  // if (user.membershipType === 'New Member') {
-  //   console.log('follow up department send mail');
-  // }
 };
 
 const UpdateUser = async (req, res) => {
