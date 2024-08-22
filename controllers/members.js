@@ -230,6 +230,9 @@ const UpdateUser = async (req, res) => {
     departments,
     membershipType,
     email,
+    title,
+    dateOfBirth
+
   } = req.body;
 
   let user = await MembersModel.findOne({ _id });
@@ -276,6 +279,14 @@ const UpdateUser = async (req, res) => {
 
   if (email) {
     data.email = email;
+  }
+
+  if (title) {
+    data.title = title;
+  }
+
+  if (dateOfBirth) {
+    data.dateOfBirth = dateOfBirth;
   }
 
   user = await MembersModel.findByIdAndUpdate({ _id }, data, { new: true });
