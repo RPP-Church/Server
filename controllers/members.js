@@ -156,7 +156,6 @@ const CreateUser = async (req, res) => {
     }
   }
 
-
   // const month = dateOfBirth ? new Date(dateOfBirth).getMonth() + 1 : '';
   // const day = dateOfBirth ? new Date(dateOfBirth).getDay() + 1 : '';
 
@@ -231,8 +230,7 @@ const UpdateUser = async (req, res) => {
     membershipType,
     email,
     title,
-    dateOfBirth
-
+    dateOfBirth,
   } = req.body;
 
   let user = await MembersModel.findOne({ _id });
@@ -313,7 +311,15 @@ const DeleteUser = async (req, res) => {
 };
 
 const AutoUpdateMember = async ({ todayDay, activityDate }) => {
-  const activity = await ActivitiesModel.findOne({ date: activityDate });
+  const month = new Date().getMonth() + 1;
+  const day = new Date().getDate();
+  const year = new Date().getFullYear();
+
+  const searchDate = `${month.toString()?.padStart(2, '0')}/${day
+    .toString()
+    ?.padStart(2, '0')}/${year}`;
+
+  const activity = await ActivitiesModel.findOne({ date: searchDate });
 
   //! if no activity found, stop the job? return or send a mail
   if (activity?._id) {
@@ -326,10 +332,11 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
     })
       .then(async (doc) => {
         const fileName = `${'report'}-${activityDate}`;
-        const firstTimer = doc.filter((c) => c.membershipType === 'New Member');
-        const male = firstTimer.map((c) => c.firstTimer === 'Male');
-        const female = firstTimer.map((c) => c.firstTimer === 'Female');
-
+        const firstTimer = await doc.filter(
+          (c) => c.membershipType === 'New Member'
+        );
+        const male = firstTimer.filter((c) => c.gender === 'Male');
+        const female = firstTimer.filter((c) => c.gender === 'Female');
         const { exc } = await CalculateTotal({
           data: doc,
           activityId: activity._id,
@@ -353,12 +360,7 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
           },
           personalizations: [
             {
-              to: [
-                {
-                  email: 'okoromivic@gmail.com',
-                  email: 'olufemioludotun2020@gmail.com',
-                },
-              ],
+              to: ['okoromivic@gmail.com', 'olufemioludotun2020@gmail.com'],
               dynamic_template_data: {
                 date: activityDate,
                 service_name: activity.serviceName,
