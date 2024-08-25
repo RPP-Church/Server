@@ -356,6 +356,7 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
               to: [
                 {
                   email: 'okoromivic@gmail.com',
+                  email: 'olufemioludotun2020@gmail.com',
                 },
               ],
               dynamic_template_data: {
