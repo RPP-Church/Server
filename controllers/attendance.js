@@ -159,12 +159,12 @@ const GenerateTotalAttendance = async (req, res) => {
 const CaptureAutoAttendance = async (req, res) => {
   const { activityId, memberId } = req.body;
 
-  //var todaysDate = new Date().getHours();
+  var todaysDate = new Date().getHours();
 
   //! check if church has ended
-  // if (todaysDate > 12) {
-  //   throw new BadRequestError('Date is in the past or future date');
-  // }
+  if (todaysDate > 13) {
+    throw new BadRequestError('Date is in the past or future date');
+  }
 
   if (!memberId) {
     throw new NotFoundError('Missing memberId or activityId.');

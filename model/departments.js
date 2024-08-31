@@ -23,7 +23,7 @@ const Departments = mongoose.Schema(
         },
         _id: false,
       },
-      required: [true, 'Please provide head of department'],
+      // required: [true, 'Please provide head of department'],
     },
     headOfDepartmentPhone: {
       type: String,
@@ -35,7 +35,7 @@ const Departments = mongoose.Schema(
         'Please provide a phone number e.g 09012345678',
       ],
       lowercase: true,
-      required: [true, 'Please provide head of department phone number'],
+      // required: [true, 'Please provide head of department phone number'],
     },
     ministerInCharge: {
       type: {
