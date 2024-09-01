@@ -7,6 +7,7 @@ const generateUniqueRef = require('../middleware/generateId');
 const CalculateTotal = require('../middleware/calculateTotal');
 const fs = require('fs');
 var path = require('path');
+const toTitleCase = require('../middleware/toLower');
 
 const GetASingleMember = async (req, res) => {
   const { id } = req.params;
@@ -41,6 +42,7 @@ const GetUser = async (req, res) => {
     phone,
     category,
     lastName,
+    name,
   } = req.query;
 
   const pageOptions = {
@@ -50,8 +52,16 @@ const GetUser = async (req, res) => {
 
   let queryObject = {};
 
-  if (firstName) {
-    queryObject.firstName = { $regex: firstName, $options: 'i' };
+  if (name) {
+    queryObject.$expr = {
+      $regexMatch: {
+        input: {
+          $concat: ['$firstName', ' ', '$lastName'],
+        },
+        regex: name,
+        options: 'i',
+      },
+    };
   }
 
   if (lastName) {
@@ -93,7 +103,7 @@ const GetUser = async (req, res) => {
   if (category) {
     queryObject.category = category;
   }
-
+  console.log(queryObject);
   let users = MembersModel.find(queryObject)
     .skip(pageOptions.page * pageOptions.limit)
     .limit(pageOptions.limit)
@@ -163,13 +173,13 @@ const CreateUser = async (req, res) => {
   const data = {
     title,
     profilePicture,
-    firstName,
-    lastName,
+    firstName: toTitleCase(firstName),
+    lastName: toTitleCase(lastName),
     gender,
     phone,
     category,
     maritalStatus,
-    spouseName,
+    spouseName: toTitleCase(spouseName),
     email,
     address,
     departments,
