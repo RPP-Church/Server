@@ -163,9 +163,9 @@ const CaptureAutoAttendance = async (req, res) => {
   var todaysDate = new Date().getHours();
 
   //! check if church has ended
-  if (todaysDate > 13) {
-    throw new BadRequestError('Date is in the past or future date');
-  }
+  // if (todaysDate > 13) {
+  //   throw new BadRequestError('Date is in the past or future date');
+  // }
 
   if (!memberId) {
     throw new NotFoundError('Missing memberId or activityId.');
