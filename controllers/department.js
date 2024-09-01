@@ -65,14 +65,14 @@ const UpdateDepartment = async (req, res) => {
     updateObj.name = name;
   }
 
-  if (headOfDepartment) {
+  if (headOfDepartment?.name) {
     updateObj.headOfDepartment = headOfDepartment;
   }
 
   if (headOfDepartmentPhone) {
     updateObj.headOfDepartmentPhone = headOfDepartmentPhone;
   }
-  if (ministerInCharge) {
+  if (ministerInCharge?.name) {
     updateObj.ministerInCharge = ministerInCharge;
   }
   findDepartment = await DepartmentModel.findByIdAndUpdate(

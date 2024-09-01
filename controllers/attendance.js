@@ -131,6 +131,7 @@ const GenerateTotalAttendance = async (req, res) => {
     },
   })
     .then(async (doc) => {
+      
       const { exc } = await CalculateTotal({
         data: doc,
         type,
