@@ -31,4 +31,10 @@ jobs:
     - run: |
             touch .env
             echo "${{ secrets.SERVER_ENV }}" > .env
+    - run: sudo su
+    - run: cd actions-runner
+    - run: cd _work
+    - run: cd Server
+    - run: cd Server
+    - run: pm2 start index.js 
   
