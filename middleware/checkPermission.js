@@ -17,7 +17,7 @@ exports.checkPermission = (role, permission) => {
     if (userPermissions?.permissions?.find((c) => c.name === permission)) {
       return next();
     } else {
-      return res.status(403).json({ error: 'Access denied' });
+      return res.status(403).json({ error: 'Access denied. Contact admin for permission.' });
     }
   };
 };
