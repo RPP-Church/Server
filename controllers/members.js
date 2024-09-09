@@ -424,31 +424,20 @@ const AddPermissionMember = async (req, res) => {
   const findPerson = await MembersModel.findOne({ _id: memberId });
 
   if (findPerson?.permission?.length > 0) {
-    let newPermission = [...findPerson?.permission];
+    let newPermission = findPerson?.permission;
     const findRoleName = newPermission?.find((c) => c.name === findRole.name);
     if (findRoleName?.name) {
-      newPermission = newPermission?.map((c) => {
-        if (c.name === findRole.name) {
-          return {
-            name: c.name,
-            permId: c.permId,
-            permissions: permission,
-          };
-        }
-        return c;
-      });
-
       await MembersModel.findOneAndUpdate(
         {
           permission: {
             $elemMatch: {
-              permId: id,
+              name: findRole.name,
             },
           },
         },
         {
           $set: {
-            'permission.$.permissions': newPermission[0].permissions,
+            'permission.$.permissions': permission,
           },
         }
       );
@@ -469,10 +458,10 @@ const AddPermissionMember = async (req, res) => {
           new: true,
         }
       );
+      return res
+        .status(StatusCodes.OK)
+        .json({ mesage: `permission sucessfully added` });
     }
-    return res
-      .status(StatusCodes.OK)
-      .json({ mesage: `permission sucessfully added` });
   } else {
     await MembersModel.findOneAndUpdate(
       { _id: memberId },
@@ -493,6 +482,17 @@ const AddPermissionMember = async (req, res) => {
   }
 };
 
+const GetProfileDetails = async (req, res) => {
+  const { id } = req.params;
+
+  const userId = req.user.userId;
+  if (id !== userId) {
+    throw new BadRequestError('Can only get your account details');
+  }
+
+  const data = await MembersModel.findOne({ _id: id }).select({password: 0, permission: 0,attendance: 0})
+  return res.status(StatusCodes.OK).json({ data });
+};
 module.exports = {
   CreateUser,
   UpdateUser,
@@ -501,4 +501,5 @@ module.exports = {
   GetASingleMember,
   AutoUpdateMember,
   AddPermissionMember,
+  GetProfileDetails,
 };

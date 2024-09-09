@@ -5,6 +5,7 @@ const {
   DeleteUser,
   GetASingleMember,
   AddPermissionMember,
+  GetProfileDetails,
 } = require('../controllers/members');
 const rbacMiddleware = require('../middleware/checkPermission');
 
@@ -218,6 +219,13 @@ router
   .put(
     rbacMiddleware.checkPermission('SYSTEM', 'add_permission'),
     AddPermissionMember
+  );
+router
+  .route('/details/:id')
+  .get(
+    rbacMiddleware.checkPermission('AUTH', 'get_profile') &&
+      rbacMiddleware.checkPermission('AUTH', 'login'),
+    GetProfileDetails
   );
 
 module.exports = router;

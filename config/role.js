@@ -4,16 +4,16 @@ const Roles = require('../model/config');
 
 class Role {
   constructor() {
-    this.roles = ''
+    this.roles = '';
   }
 
   async getRoleByName(name) {
     return await Roles.find({ name: name?.toUpperCase() });
   }
 
-//   getRoles() {
-//     return this.roles;
-//   }
+  async getRoles() {
+    return await Roles.find({});
+  }
 }
 
 module.exports = Role;

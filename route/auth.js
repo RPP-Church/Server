@@ -98,71 +98,71 @@ const router = express.Router();
  *        description: Server Error
  */
 
-/** GET Methods */
-/**
- * @openapi
- * '/single/{id}':
- *  get:
- *     security:
- *     - bearerAuth: []
- *     tags:
- *     - Admin Controller
- *     summary: Get single admin
- *     parameters:
- *      - id: id
- *        in: path
- *        description: The userId of admin
- *     responses:
- *      200:
- *        description: Fetched Successfully
- *      400:
- *        description: Bad Request
- *      404:
- *        description: Not Found
- *      500:
- *        description: Server Error
- */
+// /** GET Methods */
+// /**
+//  * @openapi
+//  * '/single/{id}':
+//  *  get:
+//  *     security:
+//  *     - bearerAuth: []
+//  *     tags:
+//  *     - Admin Controller
+//  *     summary: Get single admin
+//  *     parameters:
+//  *      - id: id
+//  *        in: path
+//  *        description: The userId of admin
+//  *     responses:
+//  *      200:
+//  *        description: Fetched Successfully
+//  *      400:
+//  *        description: Bad Request
+//  *      404:
+//  *        description: Not Found
+//  *      500:
+//  *        description: Server Error
+//  */
 
 /** PUT Methods */
-/**
- * @openapi
- * '/single/{id}':
- *  put:
- *     security:
- *     - bearerAuth: []
- *     tags:
- *     - Admin Controller
- *     summary: Modify an admin
- *     parameters:
- *      - name: id
- *        in: path
- *        description: The unique Id of the admin
- *        required: true
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *           schema:
- *            type: object
- *            required:
- *              - _id
- *            properties:
- *              phone:
- *                type: string
- *                default: ''
- *              email:
- *                type: string
- *                default: ''
- *     responses:
- *      200:
- *        description: Modified
- *      400:
- *        description: Bad Request
- *      404:
- *        description: Not Found
- *      500:
- *        description: Server Error
- */
+// /**
+//  * @openapi
+//  * '/single/{id}':
+//  *  put:
+//  *     security:
+//  *     - bearerAuth: []
+//  *     tags:
+//  *     - Admin Controller
+//  *     summary: Modify an admin
+//  *     parameters:
+//  *      - name: id
+//  *        in: path
+//  *        description: The unique Id of the admin
+//  *        required: true
+//  *     requestBody:
+//  *      required: true
+//  *      content:
+//  *        application/json:
+//  *           schema:
+//  *            type: object
+//  *            required:
+//  *              - _id
+//  *            properties:
+//  *              phone:
+//  *                type: string
+//  *                default: ''
+//  *              email:
+//  *                type: string
+//  *                default: ''
+//  *     responses:
+//  *      200:
+//  *        description: Modified
+//  *      400:
+//  *        description: Bad Request
+//  *      404:
+//  *        description: Not Found
+//  *      500:
+//  *        description: Server Error
+//  */
 
 router.post(
   '/register',
@@ -172,7 +172,12 @@ router.post(
 );
 router.post('/login', LoginAdmin);
 router.get('/', LoginAdmin);
-router.get('/single/:id', auth, GetSingleAdmin);
-router.put('/single/:id', auth, UpdateSingleAdmin);
-router.put('/single/password/:id', auth, UpdatePassword);
+// router.get('/single/:id', auth, GetSingleAdmin);
+// router.put('/single/:id', auth, UpdateSingleAdmin);
+router.put(
+  '/single/password/:id',
+  auth,
+  rbacMiddleware.checkPermission('AUTH', 'update_password'),
+  UpdatePassword
+);
 module.exports = router;
