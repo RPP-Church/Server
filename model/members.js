@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 var attendanceSchema = mongoose.Schema({
   date: String,
   serviceName: String,
@@ -105,10 +108,66 @@ const Members = mongoose.Schema(
       required: [true, 'No member Id found'],
       unique: true,
     },
+    permission: [
+      {
+        name: {
+          type: String,
+        },
+        permId: {
+          type: mongoose.Types.ObjectId,
+          ref: 'Permission',
+        },
+        permissions: [],
+        _id: false,
+      },
+    ],
+    password: {
+      type: String,
+    },
+    refreshToken: {
+      type: String,
+    },
     updatedBy: String,
   },
 
   { timestamps: true }
 );
+
+Members.pre('save', async function (next) {
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+
+  next();
+});
+
+Members.methods.CreateJWT = function () {
+  return jwt.sign(
+    { userId: this._id, name: this.firstName, role: this.permission },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '1d',
+    }
+  );
+};
+
+Members.methods.RefreshJWT = function () {
+  return jwt.sign(
+    { userId: this._id, name: this.firstName, role: this.permission },
+    process.env.REFRESH_TOKEN,
+    {
+      expiresIn: '7d',
+    }
+  );
+};
+Members.methods.comparePassword = async function (canditatePassword) {
+  const isMatch = await bcrypt.compare(canditatePassword, this.password);
+  return isMatch;
+};
+
+Members.methods.saltPassword = async function (password) {
+  const salt = await bcrypt.genSalt(10);
+  const newPassword = await bcrypt.hash(password, salt);
+  return newPassword;
+};
 
 module.exports = mongoose.model('Members', Members);

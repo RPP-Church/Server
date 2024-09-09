@@ -4,6 +4,8 @@ const {
   CaptureActivityforMember,
   GetCaptureActivity,
 } = require('../controllers/activities');
+const rbacMiddleware = require('../middleware/checkPermission');
+
 const express = require('express');
 
 const router = express.Router();
@@ -106,7 +108,26 @@ const router = express.Router();
  *      500:
  *        description: Server Error
  */
-router.route('/').post(CreateActivities).get(GetActivities);
-router.route('/member').post(CaptureActivityforMember);
-router.route('/auto').post(GetCaptureActivity);
+router
+  .route('/')
+  .post(
+    rbacMiddleware.checkPermission('ACTIVITY', 'create_activity'),
+    CreateActivities
+  )
+  .get(
+    rbacMiddleware.checkPermission('ACTIVITY', 'read_activity'),
+    GetActivities
+  );
+router
+  .route('/member')
+  .post(
+    rbacMiddleware.checkPermission('ACTIVITY', 'member_activity'),
+    CaptureActivityforMember
+  );
+router
+  .route('/auto')
+  .post(
+    rbacMiddleware.checkPermission('ACTIVITY', 'auto_activity'),
+    GetCaptureActivity
+  );
 module.exports = router;

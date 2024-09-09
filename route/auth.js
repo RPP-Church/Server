@@ -3,8 +3,10 @@ const {
   LoginAdmin,
   GetSingleAdmin,
   UpdateSingleAdmin,
-  UpdatePassword
+  UpdatePassword,
 } = require('../controllers/auth.js');
+const rbacMiddleware = require('../middleware/checkPermission');
+
 const express = require('express');
 const auth = require('../middleware/authentication');
 
@@ -162,7 +164,12 @@ const router = express.Router();
  *        description: Server Error
  */
 
-router.post('/register', CreateAdmin);
+router.post(
+  '/register',
+  auth,
+  rbacMiddleware.checkPermission('AUTH', 'create_user'),
+  CreateAdmin
+);
 router.post('/login', LoginAdmin);
 router.get('/', LoginAdmin);
 router.get('/single/:id', auth, GetSingleAdmin);

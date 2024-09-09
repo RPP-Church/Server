@@ -4,7 +4,10 @@ const {
   GetUser,
   DeleteUser,
   GetASingleMember,
+  AddPermissionMember,
 } = require('../controllers/members');
+const rbacMiddleware = require('../middleware/checkPermission');
+
 const express = require('express');
 
 const router = express.Router();
@@ -200,8 +203,21 @@ const router = express.Router();
  *        description: Server Error
  */
 
-router.route('/').post(CreateUser).get(GetUser);
+router
+  .route('/')
+  .post(rbacMiddleware.checkPermission('MEMBER', 'create_member'), CreateUser)
+  .get(rbacMiddleware.checkPermission('MEMBER', 'read_member'), GetUser);
 
-router.route('/:id').put(UpdateUser).delete(DeleteUser).get(GetASingleMember);
+router
+  .route('/:id')
+  .put(rbacMiddleware.checkPermission('MEMBER', 'update_member'), UpdateUser)
+  .delete(rbacMiddleware.checkPermission('MEMBER', 'delete_member'), DeleteUser)
+  .get(GetASingleMember);
+router
+  .route('/permission/:id')
+  .put(
+    rbacMiddleware.checkPermission('SYSTEM', 'add_permission'),
+    AddPermissionMember
+  );
 
 module.exports = router;

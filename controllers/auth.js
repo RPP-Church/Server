@@ -3,108 +3,70 @@ const AdminModel = require('../model/admin.js');
 const { StatusCodes } = require('http-status-codes');
 const cookie = require('cookie');
 const SendEmail = require('../middleware/sendEmail.js');
+const MemberModel = require('../model/members.js');
 
 const CreateAdmin = async (req, res) => {
-  const { firstName, lastName, email, password, phone, gender } = req.body;
+  const { phone, password } = req.body;
 
-  const data = {
-    firstName,
-    email,
-    password,
-    phone,
-    lastName,
-    gender,
-  };
-
-  if (email) {
-    const findEmail = await AdminModel.findOne({ email });
-
-    if (findEmail && findEmail?._id) {
-      throw new BadRequestError('Admin with email found');
-    }
+  if (!phone) {
+    throw new BadRequestError('Phone number missing');
   }
 
-  await AdminModel.create({ ...data })
-    .then((doc) => {
-      if (doc?.email) {
-        const message = `
-              <div>
-                  <h4>Hello! ${doc.firstName}</h4>
-                  <div>
-                      <p>Welcome to Resurrection Power Parish Member Managment and Record Team.</p>
-                      <p>A user details has been recreated for you, please see below the login details:</p>
-                      <h4 style="margin: 0;">Phone: ${doc.phone}</h4>
-                      <h4 style="margin: 0;">Password: 123456</h4>
-                      <p style="margin-top: 20px; font-style: italic; font-size: 14px;">Kindly use the link <a href='https://rppchurch.netlify.app/login' style="color: blue; font-style: italic; font-size: 14px;">Login</a> to access the dashboard. It's recommended to change your password after login.</p>
+  if (!password) {
+    throw new BadRequestError('Temporary password is missing');
+  }
 
-                      <h3 style="color: red; font-style: italic;">Important Notice</h3>
-                      <ul>
-                        <li>Member's information are to be treated with utmost confidentiality.</li>
-                        <li>Any Admin found exploring any member information will be reported to
-                        the pastorate and remove from using the system</li>
-                        <li>Pay utmost respect to member's information</li>
-                      </ul>
+  const findMember = await MemberModel.findOne({ phone });
 
-                      <div style="magin-top: 30px;">
-                        <p style="margin: 0; font-style: italic;">Warm Welcome</p>
-                        <p style="margin: 0; font-style: italic;">Okoromi Victor</p>
-                      </div>
-                  </div>
+  if (!findMember?._id) {
+    throw new NotFoundError('No user exist');
+  }
 
-              </div>
-        
-        `;
+  const findPermissions = findMember?.permission
+    ?.find((c) => c.name === 'AUTH')
+    ?.permissions?.find((c) => c.name === 'login');
 
-        const msg = {
-          from: {
-            email: 'okoromivic@gmail.com',
-          },
-          personalizations: [
-            {
-              to: [
-                {
-                  email: email,
-                },
-              ],
-              dynamic_template_data: {
-                first_name: doc.firstName,
-                password: password,
-                phone: doc.phone,
-              },
-            },
-          ],
-          templateId: 'd-194c8826c94149f9bde3b8ba9cf409bd',
-        };
-        SendEmail({ msg });
-      }
+  if (!findPermissions?.name) {
+    throw new BadRequestError('User has no AUTH permission to login');
+  }
 
-      res.status(StatusCodes.OK).json({ name: doc.firstName });
-    })
-    .catch((error) => {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    });
+  if (findMember?.password) {
+    throw new BadRequestError('User already has login permission and details');
+  }
 
-  // const token = admin.CreateJWT();
-  // const refreshToken = admin.RefreshJWT();
+  const newPassword = await findMember.saltPassword(password);
 
-  // await AdminModel.findOneAndUpdate(
-  //   { _id: admin._id },
-  //   { refreshToken },
-  //   { new: true }
-  // );
+  await MemberModel.findOneAndUpdate(
+    { _id: findMember._id },
+    { password: newPassword },
+    { new: true }
+  );
+  // if (findMember?.email) {
+  //   const msg = {
+  // from: {
+  //   email: 'okoromivic@gmail.com',
+  // },
+  // personalizations: [
+  //   {
+  //     to: [
+  //       {
+  //         email: findMember?.email,
+  //       },
+  //     ],
+  //     dynamic_template_data: {
+  //       first_name: findMember?.firstName,
+  //       password: password,
+  //       phone: findMember?.phone,
+  //     },
+  //   },
+  // ],
+  // templateId: 'd-194c8826c94149f9bde3b8ba9cf409bd',
+  //};
+  //SendEmail({ msg });
+  //}
 
-  // res.setHeader(
-  //   'Set-Cookie',
-  //   cookie.serialize('foo', 'bar', { httpOnly: true })
-  // );
-  // res.cookie('jwt', refreshToken, {
-  //   httpOnly: true,
-  //   // secure: true,
-  //   // signed: true,
-  //   maxAge: 24 * 60 * 60 * 1000,
-  // });
+  res.status(StatusCodes.OK).json({ message: 'Login details created' });
 };
-
 const LoginAdmin = async (req, res) => {
   const { phone, password } = req.body;
 
@@ -112,14 +74,13 @@ const LoginAdmin = async (req, res) => {
     throw new BadRequestError('Please provide phone and password');
   }
 
-  const user = await AdminModel.findOne({ phone });
+  const user = await MemberModel.findOne({ phone });
 
   if (!user) {
     throw new NotFoundError('Invalid phone or password');
   }
 
   const matchedpassword = await user.comparePassword(password);
-
   if (!matchedpassword) {
     throw new BadRequestError('Invalid phone or password');
   }
@@ -133,7 +94,6 @@ const LoginAdmin = async (req, res) => {
     { new: true }
   );
 
-
   res.setHeader(
     'Set-Cookie',
     cookie.serialize('foo', 'bar', { httpOnly: true })
@@ -144,10 +104,12 @@ const LoginAdmin = async (req, res) => {
     // signed: true,
     maxAge: 24 * 60 * 60 * 1000,
   });
-
-  res
-    .status(StatusCodes.OK)
-    .json({ name: user.firstName, token, userId: user._id });
+  res.status(StatusCodes.OK).json({
+    name: user.firstName,
+    token,
+    userId: user._id,
+    role: user?.permission,
+  });
 };
 
 const GetSingleAdmin = async (req, res) => {

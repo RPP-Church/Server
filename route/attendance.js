@@ -1,8 +1,10 @@
 const {
   CaptureAttendance,
   GenerateTotalAttendance,
-  CaptureAutoAttendance
+  CaptureAutoAttendance,
 } = require('../controllers/attendance');
+const rbacMiddleware = require('../middleware/checkPermission');
+
 const express = require('express');
 
 const router = express.Router();
@@ -48,7 +50,6 @@ const router = express.Router();
  *        description: Server Error
  */
 
-
 /** POST Methods */
 /**
  * @openapi
@@ -86,7 +87,6 @@ const router = express.Router();
  *        description: Server Error
  */
 
-
 /** POST Methods */
 /**
  * @openapi
@@ -123,9 +123,23 @@ const router = express.Router();
  *      500:
  *        description: Server Error
  */
-router.route('/').post(CaptureAttendance);
-router.route('/total').post(GenerateTotalAttendance);
-router.route('/auto').post(CaptureAutoAttendance);
-
+router
+  .route('/')
+  .post(
+    rbacMiddleware.checkPermission('ATTENDANCE', 'create_attendance'),
+    CaptureAttendance
+  );
+router
+  .route('/total')
+  .post(
+    rbacMiddleware.checkPermission('ATTENDANCE', 'generate_attendance'),
+    GenerateTotalAttendance
+  );
+router
+  .route('/auto')
+  .post(
+    rbacMiddleware.checkPermission('ATTENDANCE', 'capture_attendance'),
+    CaptureAutoAttendance
+  );
 
 module.exports = router;

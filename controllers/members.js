@@ -5,6 +5,7 @@ const { StatusCodes } = require('http-status-codes');
 const SendEmail = require('../middleware/sendEmail');
 const generateUniqueRef = require('../middleware/generateId');
 const CalculateTotal = require('../middleware/calculateTotal');
+const Roles = require('../model/config');
 const fs = require('fs');
 var path = require('path');
 const toTitleCase = require('../middleware/toLower');
@@ -103,7 +104,6 @@ const GetUser = async (req, res) => {
   if (category) {
     queryObject.category = category;
   }
-  console.log(queryObject);
   let users = MembersModel.find(queryObject)
     .skip(pageOptions.page * pageOptions.limit)
     .limit(pageOptions.limit)
@@ -404,6 +404,95 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
   }
 };
 
+const AddPermissionMember = async (req, res) => {
+  const { id, permission, memberId } = req.body;
+
+  if (!id) {
+    throw new BadRequestError('Id missing');
+  }
+
+  if (permission?.length <= 0) {
+    throw new BadRequestError('Please select permission to assign');
+  }
+
+  const findRole = await Roles.findOne({ _id: id });
+
+  if (!findRole?._id) {
+    throw new BadRequestError('Role not found');
+  }
+
+  const findPerson = await MembersModel.findOne({ _id: memberId });
+
+  if (findPerson?.permission?.length > 0) {
+    let newPermission = [...findPerson?.permission];
+    const findRoleName = newPermission?.find((c) => c.name === findRole.name);
+    if (findRoleName?.name) {
+      newPermission = newPermission?.map((c) => {
+        if (c.name === findRole.name) {
+          return {
+            name: c.name,
+            permId: c.permId,
+            permissions: permission,
+          };
+        }
+        return c;
+      });
+
+      await MembersModel.findOneAndUpdate(
+        {
+          permission: {
+            $elemMatch: {
+              permId: id,
+            },
+          },
+        },
+        {
+          $set: {
+            'permission.$.permissions': newPermission[0].permissions,
+          },
+        }
+      );
+      return res
+        .status(StatusCodes.OK)
+        .json({ mesage: `permission sucessfully added` });
+    } else {
+      await MembersModel.findOneAndUpdate(
+        { _id: memberId },
+        {
+          $push: {
+            permission: [
+              { name: findRole.name, permissions: permission, permId: id },
+            ],
+          },
+        },
+        {
+          new: true,
+        }
+      );
+    }
+    return res
+      .status(StatusCodes.OK)
+      .json({ mesage: `permission sucessfully added` });
+  } else {
+    await MembersModel.findOneAndUpdate(
+      { _id: memberId },
+      {
+        $push: {
+          permission: [
+            { name: findRole.name, permissions: permission, permId: id },
+          ],
+        },
+      },
+      {
+        new: true,
+      }
+    );
+    return res
+      .status(StatusCodes.OK)
+      .json({ mesage: `permission sucessfully added` });
+  }
+};
+
 module.exports = {
   CreateUser,
   UpdateUser,
@@ -411,4 +500,5 @@ module.exports = {
   DeleteUser,
   GetASingleMember,
   AutoUpdateMember,
+  AddPermissionMember,
 };

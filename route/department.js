@@ -4,6 +4,8 @@ const {
   GetDepartments,
   DeleteDepartment,
 } = require('../controllers/department');
+const rbacMiddleware = require('../middleware/checkPermission');
+
 const express = require('express');
 
 const router = express.Router();
@@ -124,8 +126,26 @@ const router = express.Router();
  *        description: Server Error
  */
 
-router.route('/').post(CreateDepartment).get(GetDepartments);
+router
+  .route('/')
+  .post(
+    rbacMiddleware.checkPermission('DEPARTMENT', 'create_department'),
+    CreateDepartment
+  )
+  .get(
+    rbacMiddleware.checkPermission('DEPARTMENT', 'read_department'),
+    GetDepartments
+  );
 
-router.route('/:id').put(UpdateDepartment).delete(DeleteDepartment);
+router
+  .route('/:id')
+  .put(
+    rbacMiddleware.checkPermission('DEPARTMENT', 'update_department'),
+    UpdateDepartment
+  )
+  .delete(
+    rbacMiddleware.checkPermission('DEPARTMENT', 'delete_department'),
+    DeleteDepartment
+  );
 
 module.exports = router;
