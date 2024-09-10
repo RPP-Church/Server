@@ -107,7 +107,8 @@ const GetUser = async (req, res) => {
   let users = MembersModel.find(queryObject)
     .skip(pageOptions.page * pageOptions.limit)
     .limit(pageOptions.limit)
-    .sort([['createdAt', -1]]);
+    .sort([['createdAt', -1]])
+    .select({ password: 0 });
 
   const Count = await MembersModel.countDocuments(queryObject);
 
@@ -329,7 +330,7 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
     .toString()
     ?.padStart(2, '0')}/${year}`;
 
-  const activity = await ActivitiesModel.findOne({ date: searchDate });
+  const activity = await ActivitiesModel.findOne({ date: '09/08/2024' });
 
   //! if no activity found, stop the job? return or send a mail
   if (activity?._id) {
@@ -443,7 +444,7 @@ const AddPermissionMember = async (req, res) => {
       );
       return res
         .status(StatusCodes.OK)
-        .json({ mesage: `permission sucessfully added` });
+        .json({ message: `permission sucessfully added` });
     } else {
       await MembersModel.findOneAndUpdate(
         { _id: memberId },
@@ -460,7 +461,7 @@ const AddPermissionMember = async (req, res) => {
       );
       return res
         .status(StatusCodes.OK)
-        .json({ mesage: `permission sucessfully added` });
+        .json({ message: `permission sucessfully added` });
     }
   } else {
     await MembersModel.findOneAndUpdate(
@@ -478,7 +479,7 @@ const AddPermissionMember = async (req, res) => {
     );
     return res
       .status(StatusCodes.OK)
-      .json({ mesage: `permission sucessfully added` });
+      .json({ message: `permission sucessfully added` });
   }
 };
 
@@ -490,7 +491,11 @@ const GetProfileDetails = async (req, res) => {
     throw new BadRequestError('Can only get your account details');
   }
 
-  const data = await MembersModel.findOne({ _id: id }).select({password: 0, permission: 0,attendance: 0})
+  const data = await MembersModel.findOne({ _id: id }).select({
+    password: 0,
+    permission: 0,
+    attendance: 0,
+  });
   return res.status(StatusCodes.OK).json({ data });
 };
 module.exports = {
