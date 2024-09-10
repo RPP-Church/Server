@@ -131,7 +131,6 @@ const GenerateTotalAttendance = async (req, res) => {
     },
   })
     .then(async (doc) => {
-      
       const { exc } = await CalculateTotal({
         data: doc,
         type,
@@ -143,7 +142,7 @@ const GenerateTotalAttendance = async (req, res) => {
         from: 'okoromivic@gmail.com',
         to: 'okoromivic@gmail.com',
         subject: 'Activity download initiated',
-        html: `<p>${req.user.name} just initiated a downdload for ${activity.name}-${activity.date}`
+        html: `<p>${req.user.name} just initiated a downdload for ${activity.name}-${activity.date}`,
       };
 
       SendEmail({ msg });
@@ -158,14 +157,14 @@ const GenerateTotalAttendance = async (req, res) => {
 };
 
 const CaptureAutoAttendance = async (req, res) => {
-  const { activityId, memberId } = req.body;
+  const { activityId, memberId, time } = req.body;
 
   var todaysDate = new Date().getHours();
 
   //! check if church has ended
-  // if (todaysDate > 13) {
-  //   throw new BadRequestError('Date is in the past or future date');
-  // }
+  if (todaysDate > 13) {
+    throw new BadRequestError('Date is in the past or future date');
+  }
 
   if (!memberId) {
     throw new NotFoundError('Missing memberId or activityId.');
@@ -233,7 +232,7 @@ const CaptureAutoAttendance = async (req, res) => {
       {
         $set: {
           'attendance.$.attendance': 'Present',
-          'attendance.$.time': new Date().toLocaleTimeString(),
+          'attendance.$.time': time ? time : new Date().toLocaleTimeString(),
         },
       }
     )
