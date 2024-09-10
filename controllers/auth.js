@@ -40,32 +40,38 @@ const CreateAdmin = async (req, res) => {
     { _id: findMember._id },
     { password: newPassword },
     { new: true }
-  );
-  // if (findMember?.email) {
-  //   const msg = {
-  // from: {
-  //   email: 'okoromivic@gmail.com',
-  // },
-  // personalizations: [
-  //   {
-  //     to: [
-  //       {
-  //         email: findMember?.email,
-  //       },
-  //     ],
-  //     dynamic_template_data: {
-  //       first_name: findMember?.firstName,
-  //       password: password,
-  //       phone: findMember?.phone,
-  //     },
-  //   },
-  // ],
-  // templateId: 'd-194c8826c94149f9bde3b8ba9cf409bd',
-  //};
-  //SendEmail({ msg });
-  //}
-
-  res.status(StatusCodes.OK).json({ message: 'Login details created' });
+  )
+    .then((doc) => {
+      if (doc?.email) {
+        const msg = {
+          from: {
+            email: 'okoromivic@gmail.com',
+          },
+          personalizations: [
+            {
+              to: [
+                {
+                  email: doc?.email,
+                },
+              ],
+              dynamic_template_data: {
+                first_name: doc?.firstName,
+                password: password,
+                phone: doc?.phone,
+              },
+            },
+          ],
+          templateId: 'd-194c8826c94149f9bde3b8ba9cf409bd',
+        };
+        SendEmail({ msg });
+        res.status(StatusCodes.OK).json({ message: 'Login details created' });
+      } else {
+        res.status(StatusCodes.OK).json({ message: 'Login details created' });
+      }
+    })
+    .catch((error) => {
+      res.status(StatusCodes.BAD_GATEWAY).json({ message: error.message });
+    });
 };
 const LoginAdmin = async (req, res) => {
   const { phone, password } = req.body;
@@ -80,7 +86,16 @@ const LoginAdmin = async (req, res) => {
     throw new NotFoundError('Invalid phone or password');
   }
 
+  const findPermissions = user?.permission
+    ?.find((c) => c.name === 'AUTH')
+    ?.permissions?.find((c) => c.name === 'login');
+
+  if (!findPermissions?.name) {
+    throw new BadRequestError('User has no AUTH permission to login');
+  }
+
   const matchedpassword = await user.comparePassword(password);
+
   if (!matchedpassword) {
     throw new BadRequestError('Invalid phone or password');
   }
