@@ -94,7 +94,7 @@ const port = process.env.PORT || 5000;
 
 const scheduleTask = async () => {
   const task = cron.schedule(
-    '51 * * * *',
+    '54 * * * *',
     () => {
       console.log('s')
       const activityDate = new Date().toISOString()?.slice(0, 10);
