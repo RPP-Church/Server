@@ -370,8 +370,9 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
             email: 'okoromivic@gmail.com',
           },
           personalizations: [
+            // 'olufemioludotun2020@gmail.com'
             {
-              to: ['okoromivic@gmail.com', 'olufemioludotun2020@gmail.com'],
+              to: ['okoromivic@gmail.com'],
               dynamic_template_data: {
                 date: activityDate,
                 service_name: activity.serviceName,

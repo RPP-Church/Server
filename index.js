@@ -94,11 +94,11 @@ const port = process.env.PORT || 5000;
 
 const scheduleTask = async () => {
   const task = cron.schedule(
-    '* * * * *',
+    '42 12 * * Thursday',
     () => {
-      console.log('jon running')
+      console.log('s')
       const activityDate = new Date().toISOString()?.slice(0, 10);
-      // AutoUpdateMember({ activityDate });
+      AutoUpdateMember({ activityDate });
     },
     {
       scheduled: false,
