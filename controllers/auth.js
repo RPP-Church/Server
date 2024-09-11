@@ -4,6 +4,7 @@ const { StatusCodes } = require('http-status-codes');
 const cookie = require('cookie');
 const SendEmail = require('../middleware/sendEmail.js');
 const MemberModel = require('../model/members.js');
+const Role = require('../model/config.js');
 
 const CreateAdmin = async (req, res) => {
   const { phone, password } = req.body;
@@ -73,6 +74,7 @@ const CreateAdmin = async (req, res) => {
       res.status(StatusCodes.BAD_GATEWAY).json({ message: error.message });
     });
 };
+
 const LoginAdmin = async (req, res) => {
   const { phone, password } = req.body;
 
@@ -194,10 +196,68 @@ const UpdatePassword = async (req, res) => {
     throw new BadRequestError('Old Password does not match');
   }
 };
+
+const GetLoginUser = async (req, res) => {
+  MemberModel.find({
+    password: {
+      $exists: true,
+      $ne: null,
+    },
+    permission: {
+      $elemMatch: {
+        name: 'AUTH',
+      },
+    },
+  })
+    .then((doc) => {
+      res.status(StatusCodes.OK).json({ data: doc });
+    })
+    .catch((error) => {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    });
+};
+
+const RemoveUserAuth = async (req, res) => {
+  const { id, permId } = req.params;
+
+  const checkPermission = await Role.findOne({ _id: permId });
+
+  if (!checkPermission?.name) {
+    throw new NotFoundError('Permission not found');
+  }
+
+  let updateValue = {
+    $pull: { permission: { permId } },
+  };
+
+  if (checkPermission.name === 'AUTH') {
+    updateValue.password = null;
+  }
+
+  await MemberModel.updateOne(
+    {
+      _id: id,
+    },
+    updateValue
+  )
+    .then((doc) => {
+      res.status(StatusCodes.OK).json({ message: 'Permission removed' });
+    })
+    .catch((error) => {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    });
+};
+
 module.exports = {
   CreateAdmin,
   LoginAdmin,
   GetSingleAdmin,
   UpdateSingleAdmin,
   UpdatePassword,
+  GetLoginUser,
+  RemoveUserAuth,
 };

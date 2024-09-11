@@ -1,9 +1,9 @@
 const {
   CreateAdmin,
   LoginAdmin,
-  GetSingleAdmin,
-  UpdateSingleAdmin,
   UpdatePassword,
+  GetLoginUser,
+  RemoveUserAuth,
 } = require('../controllers/auth.js');
 const rbacMiddleware = require('../middleware/checkPermission');
 
@@ -171,7 +171,6 @@ router.post(
   CreateAdmin
 );
 router.post('/login', LoginAdmin);
-router.get('/', LoginAdmin);
 // router.get('/single/:id', auth, GetSingleAdmin);
 // router.put('/single/:id', auth, UpdateSingleAdmin);
 router.put(
@@ -179,5 +178,22 @@ router.put(
   auth,
   rbacMiddleware.checkPermission('AUTH', 'update_password'),
   UpdatePassword
+);
+router.get(
+  '/users',
+  auth,
+  rbacMiddleware.checkPermission('AUTH', 'login') &&
+    rbacMiddleware.checkPermission('AUTH', 'get_user'),
+  GetLoginUser
+);
+router.delete(
+  '/remove/:id/:permId',
+  auth,
+  rbacMiddleware.checkPermission('AUTH', 'login') &&
+    rbacMiddleware.checkPermission('AUTH', 'get_user') &&
+    rbacMiddleware.checkPermission('AUTH', 'create_user') &&
+    rbacMiddleware.checkPermission('SYSTEM', 'add_permission') &&
+    rbacMiddleware.checkPermission('SYSTEM', 'delete_permission'),
+  RemoveUserAuth
 );
 module.exports = router;
