@@ -31,5 +31,6 @@ jobs:
     - run: |
             touch .env
             echo "${{ secrets.SERVER_ENV }}" > .env
-    - run: pm2 start server
+    - run: cd /home/ubuntu/actions-runner/_work/Server/Server/
+    - run: pm2 start index.js 
   
