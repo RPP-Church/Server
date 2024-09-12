@@ -330,7 +330,7 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
     .toString()
     ?.padStart(2, '0')}/${year}`;
 
-  const activity = await ActivitiesModel.findOne({ date: '09/08/2024' });
+  const activity = await ActivitiesModel.findOne({ date: searchDate });
 
   //! if no activity found, stop the job? return or send a mail
   if (activity?._id) {
