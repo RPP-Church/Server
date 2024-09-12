@@ -9,6 +9,7 @@ const Roles = require('../model/config');
 const fs = require('fs');
 var path = require('path');
 const toTitleCase = require('../middleware/toLower');
+const { AwsS3 } = require('../middleware/awsUpload');
 
 const GetASingleMember = async (req, res) => {
   const { id } = req.params;
@@ -18,6 +19,7 @@ const GetASingleMember = async (req, res) => {
   }
 
   await MembersModel.findOne({ _id: id })
+    .select({ password: 0 })
     .then((doc) => {
       res.status(StatusCodes.OK).json({ data: doc });
     })
@@ -499,6 +501,37 @@ const GetProfileDetails = async (req, res) => {
   });
   return res.status(StatusCodes.OK).json({ data });
 };
+
+const AddImageMember = async (req, res) => {
+  const { memberId, image } = req.body;
+
+  if (!memberId) {
+    throw new BadRequestError('No id found for this upload');
+  }
+
+  if (!image) {
+    throw new BadRequestError('Attach image to upload');
+  }
+
+  const finduser =await  MembersModel.findOne({ _id: memberId });
+
+  if (!finduser?._id) {
+    throw new NotFoundError('User not found');
+  }
+
+  const upload = await AwsS3({ image, folder: '/members' });
+
+  MembersModel.findByIdAndUpdate(
+    { _id: memberId },
+    { profilePicture: upload?.Location || '' }
+  )
+    .then(async (doc) => {
+      return res.status(StatusCodes.OK).json({ data:doc });
+    })
+    .catch((error) => {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+    });
+};
 module.exports = {
   CreateUser,
   UpdateUser,
@@ -508,4 +541,5 @@ module.exports = {
   AutoUpdateMember,
   AddPermissionMember,
   GetProfileDetails,
+  AddImageMember,
 };

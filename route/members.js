@@ -6,6 +6,7 @@ const {
   GetASingleMember,
   AddPermissionMember,
   GetProfileDetails,
+  AddImageMember,
 } = require('../controllers/members');
 const rbacMiddleware = require('../middleware/checkPermission');
 
@@ -213,7 +214,10 @@ router
   .route('/:id')
   .put(rbacMiddleware.checkPermission('MEMBER', 'update_member'), UpdateUser)
   .delete(rbacMiddleware.checkPermission('MEMBER', 'delete_member'), DeleteUser)
-  .get(GetASingleMember);
+  .get(
+    rbacMiddleware.checkPermission('MEMBER', 'read_member'),
+    GetASingleMember
+  );
 router
   .route('/permission/:id')
   .put(
@@ -228,4 +232,12 @@ router
     GetProfileDetails
   );
 
+router
+  .route('/upload/image')
+  .put(
+    rbacMiddleware.checkPermission('MEMBER', 'create_member') &&
+      rbacMiddleware.checkPermission('MEMBER', 'read_member') &&
+      rbacMiddleware.checkPermission('MEMBER', 'update_member'),
+    AddImageMember
+  );
 module.exports = router;
