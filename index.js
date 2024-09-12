@@ -112,7 +112,7 @@ const start = async () => {
     await connectDb(process.env.MONGO_URI);
 
     app.listen(port, () => {
-      scheduleTask();
+      // scheduleTask();
       console.log(`Server is listening on port ${port}...`);
     });
     // swaggerDocs(app, port);
