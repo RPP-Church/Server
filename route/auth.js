@@ -176,7 +176,9 @@ router.post('/login', LoginAdmin);
 router.put(
   '/single/password/:id',
   auth,
-  rbacMiddleware.checkPermission('AUTH', 'update_password'),
+  rbacMiddleware.checkPermission('AUTH', 'update_password') &&
+    rbacMiddleware.checkPermission('AUTH', 'get_profile') &&
+    rbacMiddleware.checkPermission('AUTH', 'login'),
   UpdatePassword
 );
 router.get(

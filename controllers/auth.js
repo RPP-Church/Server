@@ -177,13 +177,21 @@ const UpdatePassword = async (req, res) => {
     throw new BadRequestError('Password is missing');
   }
 
-  const user = await AdminModel.findOne({ _id: id });
+  const user = await MemberModel.findOne({ _id: id });
+
+  const findPermissions = user?.permission
+    ?.find((c) => c.name === 'AUTH')
+    ?.permissions?.find((c) => c.name === 'login');
+
+  if (!findPermissions?.name) {
+    throw new BadRequestError('User has no AUTH permission to login');
+  }
 
   const matchedpassword = await user.comparePassword(oldPassword);
 
   if (matchedpassword) {
     const newPassword = await user.saltPassword(password);
-    await AdminModel.findOneAndUpdate(
+    await MemberModel.findOneAndUpdate(
       { _id: id },
       { password: newPassword },
       {
@@ -191,7 +199,7 @@ const UpdatePassword = async (req, res) => {
       }
     );
 
-    res.status(StatusCodes.OK).json({ message: 'Record updated' });
+    res.status(StatusCodes.OK).json({ message: 'Password updated' });
   } else {
     throw new BadRequestError('Old Password does not match');
   }
