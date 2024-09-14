@@ -2,6 +2,7 @@ const {
   CaptureAttendance,
   GenerateTotalAttendance,
   CaptureAutoAttendance,
+  GetTotalAttendance,
 } = require('../controllers/attendance');
 const rbacMiddleware = require('../middleware/checkPermission');
 
@@ -140,6 +141,13 @@ router
   .post(
     rbacMiddleware.checkPermission('ATTENDANCE', 'capture_attendance'),
     CaptureAutoAttendance
+  );
+
+router
+  .route('/report/:id/:type')
+  .get(
+    rbacMiddleware.checkPermission('ATTENDANCE', 'read_report'),
+    GetTotalAttendance
   );
 
 module.exports = router;

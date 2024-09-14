@@ -142,7 +142,7 @@ const GenerateTotalAttendance = async (req, res) => {
         from: 'okoromivic@gmail.com',
         to: 'okoromivic@gmail.com',
         subject: 'Activity download initiated',
-        html: `<p>${req.user.name} just initiated a downdload for ${activity.name}-${activity.date}`,
+        html: `<p>${req.user.name} just initiated a downdload for ${activity.serviceName}-${activity.date}`,
       };
 
       SendEmail({ msg });
@@ -251,8 +251,68 @@ const CaptureAutoAttendance = async (req, res) => {
   }
 };
 
+const GetTotalAttendance = async (req, res) => {
+  const { id, type } = req.params;
+
+  if (!id) {
+    throw new BadRequestError('No activity Id found');
+  }
+
+  const activity = await ActivitiesModel.findOne({ _id: id });
+
+  if (!activity && !activity._id) {
+    throw new NotFoundError(`No activity with ID: ${id} found`);
+  }
+
+  //! check current time to make sure service has ended
+  //! this should be a cron job later
+
+  let queryObject = { serviceId: activity._id };
+  if (type) {
+    queryObject.attendance = type;
+  }
+
+  await MembersModel.find({
+    attendance: {
+      $elemMatch: queryObject,
+    },
+  })
+    .then(async (doc) => {
+      const adult = doc?.filter((c) => c.category === 'Adult');
+      const teens = doc?.filter((c) => c.category === 'Teen');
+
+      const AdultMale = adult?.filter((c) => c.gender === 'Male');
+      const AdultFeMale = adult?.filter((c) => c.gender === 'Female');
+
+      const TeenMale = teens?.filter((c) => c.gender === 'Male');
+      const TeenFeMale = teens?.filter((c) => c.gender === 'Female');
+      const total =
+        Number(TeenMale?.length) +
+        Number(AdultFeMale?.length) +
+        Number(AdultMale?.length) +
+        Number(TeenFeMale?.length);
+
+      const data = {
+        AdultMale: AdultMale?.length,
+        AdultFemale: AdultFeMale.length,
+        TeenMale: TeenMale.length,
+        TeenFemale: TeenFeMale?.length,
+        total,
+        activity,
+      };
+
+      res.status(StatusCodes.OK).json({ data });
+    })
+    .catch((error) => {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ mesage: error.message });
+    });
+};
+
 module.exports = {
   CaptureAttendance,
   GenerateTotalAttendance,
   CaptureAutoAttendance,
+  GetTotalAttendance,
 };

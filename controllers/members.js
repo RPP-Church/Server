@@ -431,20 +431,23 @@ const AddPermissionMember = async (req, res) => {
     let newPermission = findPerson?.permission;
     const findRoleName = newPermission?.find((c) => c.name === findRole.name);
     if (findRoleName?.name) {
-      await MembersModel.findOneAndUpdate(
+      const d = await MembersModel.findOneAndUpdate(
         {
           permission: {
             $elemMatch: {
               name: findRole.name,
             },
           },
+          _id: memberId,
         },
         {
           $set: {
             'permission.$.permissions': permission,
           },
-        }
+        },
+        { new: true }
       );
+
       return res
         .status(StatusCodes.OK)
         .json({ message: `permission sucessfully added` });
@@ -513,7 +516,7 @@ const AddImageMember = async (req, res) => {
     throw new BadRequestError('Attach image to upload');
   }
 
-  const finduser =await  MembersModel.findOne({ _id: memberId });
+  const finduser = await MembersModel.findOne({ _id: memberId });
 
   if (!finduser?._id) {
     throw new NotFoundError('User not found');
@@ -526,10 +529,12 @@ const AddImageMember = async (req, res) => {
     { profilePicture: upload?.Location || '' }
   )
     .then(async (doc) => {
-      return res.status(StatusCodes.OK).json({ data:doc });
+      return res.status(StatusCodes.OK).json({ data: doc });
     })
     .catch((error) => {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: error.message });
     });
 };
 module.exports = {
