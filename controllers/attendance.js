@@ -253,6 +253,7 @@ const CaptureAutoAttendance = async (req, res) => {
 
 const GetTotalAttendance = async (req, res) => {
   const { id, type } = req.params;
+  const query = req.query;
 
   if (!id) {
     throw new BadRequestError('No activity Id found');
@@ -268,46 +269,77 @@ const GetTotalAttendance = async (req, res) => {
   //! this should be a cron job later
 
   let queryObject = { serviceId: activity._id };
-  if (type) {
-    queryObject.attendance = type;
+  if (type || query?.type) {
+    queryObject.attendance = type || query?.type;
   }
 
-  await MembersModel.find({
+  const pageOptions = {
+    page: parseInt(req.query.page - 1, 10) || 0,
+    limit: parseInt(req.query.limit, 10) || 10,
+  };
+
+  const result = MembersModel.find({
     attendance: {
       $elemMatch: queryObject,
     },
-  })
-    .then(async (doc) => {
-      const adult = doc?.filter((c) => c.category === 'Adult');
-      const teens = doc?.filter((c) => c.category === 'Teen');
+  });
 
-      const AdultMale = adult?.filter((c) => c.gender === 'Male');
-      const AdultFeMale = adult?.filter((c) => c.gender === 'Female');
+  if (query?.type) {
+    const doc = await result
+      .skip(pageOptions.page * pageOptions.limit)
+      .limit(pageOptions.limit)
+      .sort([['createdAt', -1]])
+      .select({ password: 0 });
 
-      const TeenMale = teens?.filter((c) => c.gender === 'Male');
-      const TeenFeMale = teens?.filter((c) => c.gender === 'Female');
-      const total =
-        Number(TeenMale?.length) +
-        Number(AdultFeMale?.length) +
-        Number(AdultMale?.length) +
-        Number(TeenFeMale?.length);
-
-      const data = {
-        AdultMale: AdultMale?.length,
-        AdultFemale: AdultFeMale.length,
-        TeenMale: TeenMale.length,
-        TeenFemale: TeenFeMale?.length,
-        total,
-        activity,
-      };
-
-      res.status(StatusCodes.OK).json({ data });
-    })
-    .catch((error) => {
-      res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ mesage: error.message });
+    const Count = await MembersModel.countDocuments({
+      attendance: {
+        $elemMatch: queryObject,
+      },
     });
+
+    const totalPage = Math.round(Count / pageOptions.limit);
+
+    const pagination =
+      Math.round(Count % pageOptions.limit) === 0 ? totalPage : totalPage + 1;
+
+    res.status(StatusCodes.OK).json({
+      data: {
+        content: doc,
+        activity,
+        length: doc?.length,
+        totalElement: Count,
+        totalPage: pagination,
+        numberofElement: doc?.length,
+        current: pageOptions?.page,
+      },
+    });
+  } else {
+    const doc = await result;
+    const adult = doc?.filter((c) => c.category === 'Adult');
+    const teens = doc?.filter((c) => c.category === 'Teen');
+
+    const AdultMale = adult?.filter((c) => c.gender === 'Male');
+    const AdultFeMale = adult?.filter((c) => c.gender === 'Female');
+
+    const TeenMale = teens?.filter((c) => c.gender === 'Male');
+    const TeenFeMale = teens?.filter((c) => c.gender === 'Female');
+    const total =
+      Number(TeenMale?.length) +
+      Number(AdultFeMale?.length) +
+      Number(AdultMale?.length) +
+      Number(TeenFeMale?.length);
+
+    const data = {
+      AdultMale: AdultMale?.length,
+      AdultFemale: AdultFeMale.length,
+      TeenMale: TeenMale.length,
+      TeenFemale: TeenFeMale?.length,
+      total,
+      activity,
+    };
+
+    res.status(StatusCodes.OK).json({ data });
+  }
 };
 
 module.exports = {

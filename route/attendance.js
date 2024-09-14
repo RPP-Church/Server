@@ -150,4 +150,11 @@ router
     GetTotalAttendance
   );
 
+router
+  .route('/list/:id')
+  .get(
+    rbacMiddleware.checkPermission('SYSTEM', 'call_report'),
+    GetTotalAttendance
+  );
+
 module.exports = router;
