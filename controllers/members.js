@@ -244,6 +244,8 @@ const UpdateUser = async (req, res) => {
     email,
     title,
     dateOfBirth,
+    category,
+    gender,
   } = req.body;
 
   let user = await MembersModel.findOne({ _id });
@@ -298,6 +300,14 @@ const UpdateUser = async (req, res) => {
 
   if (dateOfBirth) {
     data.dateOfBirth = dateOfBirth;
+  }
+
+  if (category) {
+    data.category = category;
+  }
+
+  if (gender) {
+    data.gender = gender;
   }
 
   user = await MembersModel.findByIdAndUpdate({ _id }, data, { new: true });
