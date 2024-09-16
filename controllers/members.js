@@ -342,7 +342,7 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
     .toString()
     ?.padStart(2, '0')}/${year}`;
 
-  const activity = await ActivitiesModel.findOne({ date: searchDate });
+  const activity = await ActivitiesModel.findOne({ date: '09/15/2024' });
 
   //! if no activity found, stop the job? return or send a mail
   if (activity?._id) {
@@ -425,9 +425,9 @@ const AddPermissionMember = async (req, res) => {
     throw new BadRequestError('Id missing');
   }
 
-  if (permission?.length <= 0) {
-    throw new BadRequestError('Please select permission to assign');
-  }
+  // if (permission?.length <= 0) {
+  //   throw new BadRequestError('Please select permission to assign');
+  // }
 
   const findRole = await Roles.findOne({ _id: id });
 

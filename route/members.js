@@ -235,9 +235,7 @@ router
 router
   .route('/upload/image')
   .put(
-    rbacMiddleware.checkPermission('MEMBER', 'create_member') &&
-      rbacMiddleware.checkPermission('MEMBER', 'read_member') &&
-      rbacMiddleware.checkPermission('MEMBER', 'update_member'),
+    rbacMiddleware.checkPermission('MEMBER', 'update_member'),
     AddImageMember
   );
 module.exports = router;

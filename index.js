@@ -94,9 +94,8 @@ const port = process.env.PORT || 5000;
 
 const scheduleTask = async () => {
   const task = cron.schedule(
-    '* 15 * * Sunday',
+    '35 16 * * Monday',
     () => {
-      console.log('s')
       const activityDate = new Date().toISOString()?.slice(0, 10);
       AutoUpdateMember({ activityDate });
     },
@@ -112,7 +111,7 @@ const start = async () => {
     await connectDb(process.env.MONGO_URI);
 
     app.listen(port, () => {
-      // scheduleTask();
+      scheduleTask();
       console.log(`Server is listening on port ${port}...`);
     });
     // swaggerDocs(app, port);
