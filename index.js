@@ -13,7 +13,7 @@ const refreshRoute = require('./route/refreshToken');
 const openRoute = require('./route/openRoute');
 const activitiesRoute = require('./route/activities');
 const attendanceRoute = require('./route/attendance');
-const roles = require('./route/roles')
+const roles = require('./route/roles');
 const swaggerUI = require('swagger-ui-express');
 const cron = require('node-cron');
 const app = express();
@@ -55,7 +55,10 @@ const xss = require('xss-clean');
 const { AutoUpdateMember } = require('./controllers/members');
 app.use(cors(corsConfig));
 app.options('*', cors(corsConfig));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(
+  express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 })
+);
 app.use(cookieParser());
 app.use(
   helmet({
