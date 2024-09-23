@@ -14,6 +14,7 @@ const openRoute = require('./route/openRoute');
 const activitiesRoute = require('./route/activities');
 const attendanceRoute = require('./route/attendance');
 const roles = require('./route/roles');
+const noteRoute = require('./route/note');
 const swaggerUI = require('swagger-ui-express');
 const cron = require('node-cron');
 const app = express();
@@ -88,6 +89,7 @@ app.use('/api/v1/attendance', auth, attendanceRoute);
 app.use('/api/v1/open', openRoute);
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/role', auth, roles);
+app.use('/api/v1/note', auth, noteRoute);
 
 //Middleware
 app.use(notFoundMiddleware);

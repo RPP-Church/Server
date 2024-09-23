@@ -80,7 +80,7 @@ const CreateActivities = async (req, res) => {
 };
 
 const GetActivities = async (req, res) => {
-  const { date, serviceName } = req.query;
+  const { startDate, endDate, serviceName } = req.query;
 
   const pageOptions = {
     page: parseInt(req.query.page - 1, 10) || 0,
@@ -89,17 +89,10 @@ const GetActivities = async (req, res) => {
 
   let queryObject = {};
 
-  if (date) {
-    const today = new Date(date);
-    const month = today?.getMonth() + 1;
-    const day = today?.getDate();
-    const year = today?.getFullYear();
-    const useDate = `${month.toString()?.padStart(2, '0')}/${day
-      .toString()
-      ?.padStart(2, '0')}/${year}`;
-
-    queryObject.date = useDate;
+  if (startDate || endDate) {
+    queryObject.date = { $gte: startDate, $lte: endDate };
   }
+
   if (serviceName) {
     queryObject.serviceName = serviceName;
   }

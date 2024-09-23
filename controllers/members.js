@@ -342,7 +342,7 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
     .toString()
     ?.padStart(2, '0')}/${year}`;
 
-  const activity = await ActivitiesModel.findOne({ date: '09/15/2024' });
+  const activity = await ActivitiesModel.findOne({ date: searchDate });
 
   //! if no activity found, stop the job? return or send a mail
   if (activity?._id) {
@@ -382,9 +382,9 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
             email: 'okoromivic@gmail.com',
           },
           personalizations: [
-            // 'olufemioludotun2020@gmail.com'
+            // '
             {
-              to: ['okoromivic@gmail.com'],
+              to: ['okoromivic@gmail.com', 'olufemioludotun2020@gmail.com'],
               dynamic_template_data: {
                 date: activityDate,
                 service_name: activity.serviceName,
@@ -547,6 +547,30 @@ const AddImageMember = async (req, res) => {
         .json({ message: error.message });
     });
 };
+
+const FindMemberStat = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  let queryObject = {};
+  if (startDate || endDate) {
+    queryObject.attendance = { date: startDate };
+  }
+
+  console.log(startDate, endDate);
+  const user = await MembersModel.find({
+    attendance: {
+      $elemMatch: {
+        attendance: 'Absent',
+        date: startDate,
+      },
+    },
+  });
+
+  res.status(StatusCodes.OK).json({
+    data: user,
+    len: user?.length,
+  });
+};
 module.exports = {
   CreateUser,
   UpdateUser,
@@ -557,4 +581,5 @@ module.exports = {
   AddPermissionMember,
   GetProfileDetails,
   AddImageMember,
+  FindMemberStat,
 };

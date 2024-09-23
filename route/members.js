@@ -7,6 +7,7 @@ const {
   AddPermissionMember,
   GetProfileDetails,
   AddImageMember,
+  FindMemberStat,
 } = require('../controllers/members');
 const rbacMiddleware = require('../middleware/checkPermission');
 
@@ -238,4 +239,5 @@ router
     rbacMiddleware.checkPermission('MEMBER', 'update_member'),
     AddImageMember
   );
+router.route('/stat/report').get(FindMemberStat);
 module.exports = router;
