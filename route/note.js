@@ -7,10 +7,10 @@ const router = express.Router();
 
 router
   .route('/')
-  .post(rbacMiddleware.checkPermission('ATTENDANCE', 'create_note'), SaveNote);
+  .post(rbacMiddleware.checkPermission('NOTE', 'create_note'), SaveNote);
 router
   .route('/:id')
-  .get(rbacMiddleware.checkPermission('ATTENDANCE', 'get_report'), GetNote);
+  .get(rbacMiddleware.checkPermission('NOTE', 'get_report'), GetNote);
 
 router
   .route('/:noteId/:memberId')
