@@ -9,6 +9,7 @@ var note = mongoose.Schema(
       },
     },
     comment: String,
+    date: String,
   },
   { timestamps: true }
 );
@@ -22,5 +23,3 @@ const Note = mongoose.Schema({
 });
 
 module.exports = mongoose.model('Note', Note);
-
-
