@@ -549,25 +549,102 @@ const AddImageMember = async (req, res) => {
 };
 
 const FindMemberStat = async (req, res) => {
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, type } = req.query;
 
   let queryObject = {};
   if (startDate || endDate) {
     queryObject.attendance = { date: startDate };
   }
-
-  console.log(startDate, endDate);
-  const user = await MembersModel.find({
-    attendance: {
-      $elemMatch: {
-        attendance: 'Absent',
-        date: startDate,
+  const user = await MembersModel.aggregate([
+    {
+      $match: {
+        'attendance.date': {
+          $gte: startDate,
+          $lte: endDate,
+        },
       },
     },
-  });
+    {
+      $match: {
+        'attendance.attendance': type,
+      },
+    },
+    { $unwind: { path: '$attendance' } },
+    { $unwind: { path: '$attendance.date' } },
+    {
+      $match: {
+        'attendance.date': {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      },
+    },
+    {
+      $match: {
+        'attendance.attendance': type,
+      },
+    },
+    {
+      $group: {
+        _id: '$_id',
+        firstName: {
+          $first: '$firstName',
+        },
+        lastName: {
+          $first: '$lastName',
+        },
 
+        attendance: {
+          $push: '$attendance',
+        },
+      },
+    },
+  ]);
+
+  function toTime(seconds) {
+    var date = new Date(null);
+    date.setSeconds(seconds);
+    return date.toISOString().substr(11, 8);
+  }
+
+  const CalculateTotal = (attendance) => {
+    let total = 0;
+
+    for (let i = 0; i < attendance.length; i++) {
+      const convert =
+        attendance[i] && attendance[i].time
+          ? attendance[i].time.split(' ')[0]
+          : 0;
+
+      const seconds = convert
+        ? convert.split(':').reduce((acc, time) => 60 * acc + +time)
+        : 0;
+
+      total += seconds;
+    }
+
+    return toTime(total / 4);
+  };
+
+  const convertTime = user.map((item) => {
+    return {
+      ...item,
+      // attendance: item.attendance.map((time) => {
+      //   return {
+      //     time:
+      //       time && time.time
+      //         ? time.time
+      //             .split(' ')[0]
+      //             ?.split(':')
+      //             .reduce((acc, time) => 60 * acc + +time)
+      //         : 0,
+      //   };
+      // }),
+      total: CalculateTotal(item.attendance),
+    };
+  });
   res.status(StatusCodes.OK).json({
-    data: user,
+    data: convertTime,
     len: user?.length,
   });
 };

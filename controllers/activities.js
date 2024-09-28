@@ -46,7 +46,7 @@ const CreateActivities = async (req, res) => {
   })
     .then(async (doc) => {
       const attendance = {
-        date,
+        date: doc.date,
         serviceName: doc.serviceName,
         serviceId: doc._id,
         attendance: 'Absent',
@@ -80,7 +80,7 @@ const CreateActivities = async (req, res) => {
 };
 
 const GetActivities = async (req, res) => {
-  const { startDate, endDate, serviceName } = req.query;
+  const { startDate, endDate, serviceName, date } = req.query;
 
   const pageOptions = {
     page: parseInt(req.query.page - 1, 10) || 0,
@@ -95,6 +95,10 @@ const GetActivities = async (req, res) => {
 
   if (serviceName) {
     queryObject.serviceName = serviceName;
+  }
+
+  if (date) {
+    queryObject.date = date;
   }
 
   let data = ActivitiesModel.find(queryObject)
@@ -221,7 +225,7 @@ const GetCaptureActivity = async (req, res) => {
     })
       .then(async (doc) => {
         const attendance = {
-          date,
+          date: doc.date,
           serviceName: doc.serviceName,
           serviceId: doc._id,
           attendance: 'Absent',
