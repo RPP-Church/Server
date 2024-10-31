@@ -32,7 +32,6 @@ const GetASingleMember = async (req, res) => {
 
 const GetUser = async (req, res) => {
   const {
-    firstName,
     gender,
     address,
     department,
@@ -337,6 +336,7 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
   const month = new Date().getMonth() + 1;
   const day = new Date().getDate();
   const year = new Date().getFullYear();
+  
 
   const searchDate = `${month.toString()?.padStart(2, '0')}/${day
     .toString()

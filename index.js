@@ -15,6 +15,7 @@ const activitiesRoute = require('./route/activities');
 const attendanceRoute = require('./route/attendance');
 const roles = require('./route/roles');
 const noteRoute = require('./route/note');
+const archiveRoute = require('./route/archive')
 const swaggerUI = require('swagger-ui-express');
 const cron = require('node-cron');
 const app = express();
@@ -90,6 +91,7 @@ app.use('/api/v1/open', openRoute);
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/role', auth, roles);
 app.use('/api/v1/note', auth, noteRoute);
+app.use('/api/v1/archive', auth, archiveRoute);
 
 //Middleware
 app.use(notFoundMiddleware);
@@ -99,7 +101,7 @@ const port = process.env.PORT || 5000;
 
 const scheduleTask = async () => {
   const task = cron.schedule(
-    '35 16 * * Monday',
+    '29 15 * * Sunday',
     () => {
       const activityDate = new Date().toISOString()?.slice(0, 10);
       AutoUpdateMember({ activityDate });
