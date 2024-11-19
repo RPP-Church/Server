@@ -97,6 +97,8 @@ app.use('/api/v1/archive', auth, archiveRoute);
 app.use('/api/v1/stream', auth, streamRoute);
 app.use('/api/v1/testimony', testimonyRoute);
 
+
+
 //Middleware
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
