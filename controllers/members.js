@@ -66,9 +66,6 @@ const GetUser = async (req, res) => {
     };
   }
 
-  if (lastName) {
-    queryObject.lastName = { $regex: lastName, $options: 'i' };
-  }
   if (gender) {
     queryObject.gender = gender;
   }
@@ -336,7 +333,6 @@ const AutoUpdateMember = async ({ todayDay, activityDate }) => {
   const month = new Date().getMonth() + 1;
   const day = new Date().getDate();
   const year = new Date().getFullYear();
-  
 
   const searchDate = `${month.toString()?.padStart(2, '0')}/${day
     .toString()
