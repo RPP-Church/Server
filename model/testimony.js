@@ -8,7 +8,6 @@ const Testimony = mongoose.Schema(
     },
     phone: {
       type: String,
-      minLength: 11,
       maxLength: 11,
       match: [
         /^(?:(?:(?:\+?234(?:\h1)?|01)\h*)?(?:\(\d{3}\)|\d{3})|\d{4})(?:\W*\d{3})?\W*\d{4}$/gm,

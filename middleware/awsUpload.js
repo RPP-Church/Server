@@ -9,27 +9,31 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-const AwsS3 = async ({ image, file, folder }) => {
+const AwsS3 = async ({ image, file, folder, type: types }) => {
   if (image || file?.fieldname) {
     if (!file?.fieldname) {
       const s3 = new AWS.S3();
 
-      let base64Img = image?.includes('data:image')
+      let base64Img = image?.includes('data:')
         ? `${image}`
         : `data:image/jpg;base64,${image}`;
 
-      const base64Data = new Buffer.from(
-        base64Img.replace(/^data:image\/\w+;base64,/, ''),
-        'base64'
-      );
+      const base64Data =
+        types && types?.includes('audio') // Decode Base64 string to binary buffer
+          ? new Buffer.from(base64Img, 'base64')
+          : new Buffer.from(
+              base64Img.replace(/^data:image\/\w+;base64,/, ''),
+              'base64'
+            );
 
       const type = base64Img.split(';')[0].split('/')[1];
+
 
       const params = {
         Bucket: 'rppchurch' + folder,
         Key: Date.now()?.toString(),
         ContentEncoding: 'base64',
-        ContentType: `image/${type}`,
+        ContentType: types ? types : `image/${type}`,
         Body: base64Data,
       };
 

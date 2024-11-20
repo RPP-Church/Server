@@ -1,6 +1,7 @@
 const { BadRequestError, NotFoundError } = require('../errors');
 const TestimonyModel = require('../model/testimony');
 const { StatusCodes } = require('http-status-codes');
+const { AwsS3 } = require('../middleware/awsUpload');
 
 const CreateTestimony = async (req, res) => {
   const { name, phone, testimony, media, public } = req.body;
@@ -9,9 +10,28 @@ const CreateTestimony = async (req, res) => {
     throw new BadRequestError('Please enter your testimony');
   }
 
+  if (media.length > 2) {
+    throw new BadRequestError(
+      'Only three attachments are allowed for now. Thank you'
+    );
+  }
+
   function sanitizeString(str) {
     str = str?.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, '');
     return str.trim();
+  }
+
+  let uploadMedia = [];
+  if (media?.length > 0 && media.length <= 2) {
+    for (var i = 0; i < media.length; i++) {
+      const upload = await AwsS3({
+        image: media[i].file,
+        type: media[i].type,
+        folder: '/testimony',
+      });
+      uploadMedia.push({ type: media[i].type, url: upload?.Location });
+    }
+    //
   }
 
   const today = new Date();
@@ -24,7 +44,7 @@ const CreateTestimony = async (req, res) => {
     phone: phone ? sanitizeString(phone) : '',
     public,
     testimony: sanitizeString(testimony),
-    media,
+    media: uploadMedia,
     date: `${month.toString()?.padStart(2, '0')}/${day
       .toString()
       ?.padStart(2, '0')}/${year}`,
