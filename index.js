@@ -59,9 +59,9 @@ const xss = require('xss-clean');
 const { AutoUpdateMember } = require('./controllers/members');
 app.use(cors(corsConfig));
 app.options('*', cors(corsConfig));
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '200mb' }));
 app.use(
-  express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 })
+  express.urlencoded({ limit: '200mb', extended: true, parameterLimit: 500000 })
 );
 app.use(cookieParser());
 app.use(
