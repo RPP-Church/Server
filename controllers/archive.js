@@ -161,7 +161,6 @@ const RestoreArchive = async (req, res) => {
   if (!user?._id) {
     throw new NotFoundError('No user found');
   }
-  console.log(user, 'user');
   const data = {
     title: user.title,
     firstName: user.firstName,
