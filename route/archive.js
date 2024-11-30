@@ -1,4 +1,8 @@
-const { CreateArchive, GetArchive } = require('../controllers/archive');
+const {
+  CreateArchive,
+  GetArchive,
+  RestoreArchive,
+} = require('../controllers/archive');
 const rbacMiddleware = require('../middleware/checkPermission');
 const express = require('express');
 
@@ -14,5 +18,12 @@ router
 router
   .route('/')
   .get(rbacMiddleware.checkPermission('ARCHIVE', 'read_archive'), GetArchive);
+
+router
+  .route('/restore/:id')
+  .get(
+    rbacMiddleware.checkPermission('ARCHIVE', 'restore_archive'),
+    RestoreArchive
+  );
 
 module.exports = router;

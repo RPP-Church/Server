@@ -12,6 +12,7 @@ var attendanceSchema = mongoose.Schema({
     enum: ['Present', 'Absent'],
     default: 'Absent',
   },
+  createdBy: String,
   _id: false,
 });
 

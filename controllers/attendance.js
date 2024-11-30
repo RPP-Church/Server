@@ -57,7 +57,9 @@ const CaptureAttendance = async (req, res) => {
       serviceName: activity.serviceName,
       serviceId: activity._id,
       attendance: 'Present',
+      createdBy: req.user.name,
     };
+
     await MembersModel.findOneAndUpdate(
       { _id: findMember._id },
       {
@@ -204,6 +206,7 @@ const CaptureAutoAttendance = async (req, res) => {
       serviceName: activity.serviceName,
       serviceId: activity._id,
       attendance: 'Present',
+      createdBy: req.user.name,
     };
     await MembersModel.findOneAndUpdate(
       { _id: findMember._id },

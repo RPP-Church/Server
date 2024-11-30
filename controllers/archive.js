@@ -36,7 +36,7 @@ const CreateArchive = async (req, res) => {
     attendance: user?.attendance,
     memberId: user?.memberId,
     permission: user?.permission,
-    created: req.user.name,
+    createdBy: req.user.name,
   })
     .then(async (doc) => {
       await MembersModel.findByIdAndDelete({ _id: userId });
@@ -153,7 +153,46 @@ const GetArchive = async (req, res) => {
   });
 };
 
+const RestoreArchive = async (req, res) => {
+  const { id } = req.params;
+
+  const user = await ArchiveModel.findOne({ _id: id });
+
+  if (!user?._id) {
+    throw new NotFoundError('No user found');
+  }
+  console.log(user, 'user');
+  const data = {
+    title: user.title,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    gender: user.gender,
+    phone: user.phone,
+    category: user.category,
+    maritalStatus: user.maritalStatus,
+    departments: user.departments,
+    membershipType: user.membershipType,
+    joinedDate: user.joinedDate,
+    attendance: user.attendance,
+    memberId: user.memberId,
+    permission: user.permission,
+  };
+  await MembersModel.create(data)
+    .then(async (doc) => {
+      await ArchiveModel.findByIdAndDelete({ _id: id });
+      res
+        .status(StatusCodes.OK)
+        .json({ message: 'Member restored successful' });
+    })
+    .catch((error) => {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    });
+};
+
 module.exports = {
   CreateArchive,
   GetArchive,
+  RestoreArchive,
 };
