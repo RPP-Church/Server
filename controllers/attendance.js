@@ -52,6 +52,7 @@ const CaptureAttendance = async (req, res) => {
       `${findMember.firstName} already marked present for this activity`
     );
   } else if (checkAttendance?.length <= 0) {
+    console.log(req.user.name, 'req.user.name');
     const attendance = {
       date: activity.date,
       serviceName: activity.serviceName,
@@ -201,12 +202,14 @@ const CaptureAutoAttendance = async (req, res) => {
       `${findMember.firstName} already marked present for this activity`
     );
   } else if (checkAttendance?.length <= 0) {
+
     const attendance = {
       date: activity.date,
       serviceName: activity.serviceName,
       serviceId: activity._id,
       attendance: 'Present',
       createdBy: req.user.name,
+      time: new Date().toLocaleTimeString(),
     };
     await MembersModel.findOneAndUpdate(
       { _id: findMember._id },
@@ -236,6 +239,7 @@ const CaptureAutoAttendance = async (req, res) => {
         $set: {
           'attendance.$.attendance': 'Present',
           'attendance.$.time': time ? time : new Date().toLocaleTimeString(),
+          'attendance.$.createdBy': req.user.name,
         },
       }
     )
