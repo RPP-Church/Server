@@ -3,6 +3,8 @@ const TestimonyModel = require('../model/testimony');
 const { StatusCodes } = require('http-status-codes');
 const { AwsS3 } = require('../middleware/awsUpload');
 
+//! create
+
 const CreateTestimony = async (req, res) => {
   const { name, phone, testimony, media, public } = req.body;
 
