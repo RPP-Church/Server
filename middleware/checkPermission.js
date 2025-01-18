@@ -1,6 +1,5 @@
 // middleware/rbacMiddleware.js
 
-const Role = require('../config/role');
 const Permissions = require('../config/permission');
 
 // Check if the user has the required permission for a route
