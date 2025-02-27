@@ -87,7 +87,7 @@ const generateWeeklyCallReport = async () => {
   emailBody += `</table>`;
 
   const msg = {
-    to: 'okoromivic@gmail.com',
+    to: ['okoromivic@gmail.com', 'okoromivictorsunday@gmail.com'],
     from: 'okoromivic@gmail.com',
     subject: '📊 Weekly Call Report',
     html: emailBody,
@@ -267,7 +267,7 @@ const AutoUpdateMember = async ({ todayDay }) => {
 };
 // Schedule jobs
 const scheduleCheckAgentTransaction = () => {
-  cron.schedule('0 09 * * Sunday', generateWeeklyCallReport, {
+  cron.schedule('* * * * Sunday', generateWeeklyCallReport, {
     scheduled: true,
   });
   cron.schedule(
