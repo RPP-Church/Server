@@ -4,6 +4,9 @@ const ActivitiesModel = require('../model/activities');
 const { StatusCodes } = require('http-status-codes');
 const CalculateTotal = require('../middleware/calculateTotal');
 const SendEmail = require('../middleware/sendEmail');
+const Permission = require('../model/config');
+const { default: mongoose } = require('mongoose');
+const CallLogsModel = require('../model/callLogs');
 
 const CaptureAttendance = async (req, res) => {
   const { activityId, memberName, memberPhone, memberId } = req.body;
@@ -202,7 +205,6 @@ const CaptureAutoAttendance = async (req, res) => {
       `${findMember.firstName} already marked present for this activity`
     );
   } else if (checkAttendance?.length <= 0) {
-
     const attendance = {
       date: activity.date,
       serviceName: activity.serviceName,

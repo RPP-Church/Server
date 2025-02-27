@@ -2,7 +2,6 @@ const { BadRequestError, NotFoundError } = require('../errors');
 const MembersModel = require('../model/members');
 const ActivitiesModel = require('../model/activities');
 const { StatusCodes } = require('http-status-codes');
-const SendEmail = require('../middleware/sendEmail');
 const generateUniqueRef = require('../middleware/generateId');
 const CalculateTotal = require('../middleware/calculateTotal');
 const Roles = require('../model/config');
@@ -329,91 +328,6 @@ const DeleteUser = async (req, res) => {
     .json({ mesage: `${user.firstName} sucessfully deleted` });
 };
 
-const AutoUpdateMember = async ({ todayDay, activityDate }) => {
-  const month = new Date().getMonth() + 1;
-  const day = new Date().getDate();
-  const year = new Date().getFullYear();
-
-  const searchDate = `${month.toString()?.padStart(2, '0')}/${day
-    .toString()
-    ?.padStart(2, '0')}/${year}`;
-
-  const activity = await ActivitiesModel.findOne({ date: searchDate });
-
-  //! if no activity found, stop the job? return or send a mail
-  if (activity?._id) {
-    let queryObject = { serviceId: activity._id };
-
-    await MembersModel.find({
-      attendance: {
-        $elemMatch: queryObject,
-      },
-    })
-      .then(async (doc) => {
-        const fileName = `${'report'}-${activityDate}`;
-        const firstTimer = await doc.filter(
-          (c) => c.membershipType === 'New Member'
-        );
-        const male = firstTimer.filter((c) => c.gender === 'Male');
-        const female = firstTimer.filter((c) => c.gender === 'Female');
-        const { exc } = await CalculateTotal({
-          data: doc,
-          activityId: activity._id,
-          activityName: activity.serviceName,
-          sendReport: true,
-          fileName,
-        });
-
-        const pathToAttachment = path.join(
-          __dirname,
-          '..',
-          'report',
-          `${fileName}.xlsx`
-        );
-        attachment = fs.readFileSync(pathToAttachment).toString('base64');
-        var dir = './report';
-
-        const msg = {
-          from: {
-            email: 'okoromivic@gmail.com',
-          },
-          personalizations: [
-            // '
-            {
-              to: ['okoromivic@gmail.com', 'olufemioludotun2020@gmail.com'],
-              dynamic_template_data: {
-                date: activityDate,
-                service_name: activity.serviceName,
-                male: male.length || 0,
-                female: female.length || 0,
-                total: firstTimer.length || 0,
-              },
-            },
-          ],
-          templateId: 'd-cfd316f4138a47e9b7d7bc4f6448d355',
-          attachments: [
-            {
-              content: attachment,
-              filename: `${fileName}.xlsx`,
-              type: 'application/xlsx',
-              disposition: 'attachment',
-            },
-          ],
-        };
-
-        const message = await SendEmail({ msg }).then((res) => {
-          if (fs.existsSync(dir)) {
-            fs.rmSync(dir, { recursive: true, force: true });
-            console.log(`${dir} File successfully.`);
-          }
-        });
-      })
-      .catch((error) => {
-        console.log('error in sending repoer', error.message);
-      });
-  }
-};
-
 const AddPermissionMember = async (req, res) => {
   const { id, permission, memberId } = req.body;
 
@@ -650,7 +564,6 @@ module.exports = {
   GetUser,
   DeleteUser,
   GetASingleMember,
-  AutoUpdateMember,
   AddPermissionMember,
   GetProfileDetails,
   AddImageMember,

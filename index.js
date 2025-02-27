@@ -18,6 +18,7 @@ const noteRoute = require('./route/note');
 const archiveRoute = require('./route/archive');
 const streamRoute = require('./route/stream');
 const testimonyRoute = require('./route/testimony');
+const { scheduleCheckAgentTransaction } = require('./jobs/cronJobs.js');
 const swaggerUI = require('swagger-ui-express');
 const cron = require('node-cron');
 const app = express();
@@ -57,6 +58,7 @@ const corsConfig = {
 const helmet = require('helmet');
 const xss = require('xss-clean');
 const { AutoUpdateMember } = require('./controllers/members');
+const { AutoGenerateAttendance } = require('./controllers/attendance');
 app.use(cors(corsConfig));
 app.options('*', cors(corsConfig));
 app.use(express.json({ limit: '200mb' }));
@@ -97,35 +99,34 @@ app.use('/api/v1/archive', auth, archiveRoute);
 app.use('/api/v1/stream', auth, streamRoute);
 app.use('/api/v1/testimony', testimonyRoute);
 
-
-
 //Middleware
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT || 5000;
 
-const scheduleTask = async () => {
-  const task = cron.schedule(
-    '29 15 * * Sunday',
-    () => {
-      const activityDate = new Date().toISOString()?.slice(0, 10);
-      AutoUpdateMember({ activityDate });
-    },
-    {
-      scheduled: false,
-    }
-  );
-  task.start();
-};
+// const scheduleTask = async () => {
+//   const task = cron.schedule(
+//     // '29 15 * * Sunday',
+//     '* * * * *',
+//     () => {
+//       // const activityDate = new Date().toISOString()?.slice(0, 10);
+//        AutoUpdateMember({ activityDate });
+//       AutoGenerateAttendance();
+//     },
+//     {
+//       scheduled: false,
+//     }
+//   );
+//   task.start();
+// };
 
 const start = async () => {
   try {
-    await connectDb(process.env.MONGO_URI);
-
-    app.listen(port, () => {
-      scheduleTask();
-      console.log(`Server is listening on port ${port}...`);
+    app.listen(port, async () => {
+      await connectDb(process.env.MONGO_URI);
+      scheduleCheckAgentTransaction();
+      console.log('App is listening on' + ' ' + port);
     });
     // swaggerDocs(app, port);
   } catch (error) {
