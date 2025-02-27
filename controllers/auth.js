@@ -9,6 +9,10 @@ const Role = require('../model/config.js');
 const CreateAdmin = async (req, res) => {
   const { phone, password } = req.body;
 
+
+
+  
+
   if (!phone) {
     throw new BadRequestError('Phone number missing');
   }
