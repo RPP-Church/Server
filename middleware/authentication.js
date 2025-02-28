@@ -14,7 +14,7 @@ const auth = async (req, res, next) => {
     req.user = {
       userId: token.userId,
       name: token.name,
-      role: token.role,
+      role: token.permission,
     };
     next();
   } catch (error) {

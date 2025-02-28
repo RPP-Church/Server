@@ -312,7 +312,7 @@ MembersSchema.methods.CreateJWT = function () {
   return jwt.sign(
     { userId: this._id, name: this.firstName, role: this.permission },
     process.env.JWT_SECRET,
-    { expiresIn: '1d' }
+    { expiresIn: '1m' }
   );
 };
 
@@ -322,7 +322,7 @@ MembersSchema.methods.RefreshJWT = function () {
     { userId: this._id, name: this.firstName, role: this.permission },
     process.env.REFRESH_TOKEN,
     {
-      expiresIn: '7d',
+      expiresIn: '2m',
     }
   );
 };
