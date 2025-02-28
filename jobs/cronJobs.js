@@ -267,7 +267,7 @@ const AutoUpdateMember = async ({ todayDay }) => {
 };
 // Schedule jobs
 const scheduleCheckAgentTransaction = () => {
-  cron.schedule('* * * * Sunday', generateWeeklyCallReport, {
+  cron.schedule('* * * * *', generateWeeklyCallReport, {
     scheduled: true,
   });
   cron.schedule(
