@@ -1,7 +1,7 @@
 const { BadRequestError, NotFoundError } = require('../errors');
 const AdminModel = require('../model/admin.js');
 const { StatusCodes } = require('http-status-codes');
-const cookie = require('cookie');
+//const cookie = require('cookie');
 const SendEmail = require('../middleware/sendEmail.js');
 const MemberModel = require('../model/members.js');
 const Role = require('../model/config.js');
@@ -115,16 +115,16 @@ const LoginAdmin = async (req, res) => {
     { new: true }
   );
 
-  res.setHeader(
-    'Set-Cookie',
-    cookie.serialize('foo', 'bar', { httpOnly: true })
-  );
-  res.cookie('jwt', refreshToken, {
-    httpOnly: true,
-    // secure: true,
-    // signed: true,
-    maxAge: 24 * 60 * 60 * 1000,
-  });
+  // res.setHeader(
+  //   'Set-Cookie',
+  //   cookie.serialize('foo', 'bar', { httpOnly: true })
+  // );
+  // res.cookie('jwt', refreshToken, {
+  //   httpOnly: true,
+  //   // secure: true,
+  //   // signed: true,
+  //   maxAge: 24 * 60 * 60 * 1000,
+  // });
   res.status(StatusCodes.OK).json({
     name: user.firstName,
     token,
