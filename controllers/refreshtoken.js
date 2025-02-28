@@ -1,6 +1,6 @@
 const { NotFoundError, UnauthenticatedError } = require('../errors');
 const { StatusCodes } = require('http-status-codes');
-const User = require('../model/admin');
+const User = require('../model/members');
 const jwt = require('jsonwebtoken');
 
 const RefreshToken = async (req, res) => {

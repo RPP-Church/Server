@@ -272,7 +272,7 @@ const scheduleCheckAgentTransaction = () => {
     scheduled: true,
   });
   cron.schedule(
-    '* * * * *',
+    '0 11 * * Sunday',
     async () => {
       try {
         await AutoGenerateLog();
