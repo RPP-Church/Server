@@ -11,10 +11,11 @@ const auth = async (req, res, next) => {
   const bearer = authHeader.split(' ')[1];
   try {
     const token = jwt.verify(bearer, process.env.JWT_SECRET);
+
     req.user = {
       userId: token.userId,
       name: token.name,
-      role: token.permission,
+      role: token.role,
     };
     next();
   } catch (error) {

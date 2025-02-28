@@ -12,6 +12,8 @@ exports.checkPermission = (role, permission) => {
       permission
     );
 
+    console.log(userPermissions, 'userPermissions', req.user);
+
     if (userPermissions?.permissions?.find((c) => c.name === permission)) {
       return next();
     } else {

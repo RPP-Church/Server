@@ -1,5 +1,4 @@
 const { BadRequestError, NotFoundError } = require('../errors');
-const AdminModel = require('../model/admin.js');
 const { StatusCodes } = require('http-status-codes');
 //const cookie = require('cookie');
 const SendEmail = require('../middleware/sendEmail.js');
@@ -88,40 +87,41 @@ const LoginAdmin = async (req, res) => {
     throw new NotFoundError('Invalid phone or password');
   }
 
-  const findPermissions = user?.permission
-    ?.find((c) => c.name === 'AUTH')
-    ?.permissions?.find((c) => c.name === 'login');
+  // Check if the user has AUTH permission to log in
+  const hasAuthPermission = user.permission?.some(
+    (c) => c.name === 'AUTH' && c.permissions.some((p) => p.name === 'login')
+  );
 
-  if (!findPermissions?.name) {
+  if (!hasAuthPermission) {
     throw new BadRequestError('User has no AUTH permission to login');
   }
 
-  const matchedpassword = await user.comparePassword(password);
-
-  if (!matchedpassword) {
+  // Validate password
+  const matchedPassword = await user.comparePassword(password);
+  if (!matchedPassword) {
     throw new BadRequestError('Invalid phone or password');
   }
 
+  // Generate tokens
   const token = user.CreateJWT();
-
   const refreshToken = user.RefreshJWT();
 
-  await AdminModel.findOneAndUpdate(
-    { _id: user._id },
+  // Store refreshToken in the database
+  await MemberModel.findByIdAndUpdate(
+    user._id,
     { refreshToken },
     { new: true }
   );
 
-  // res.setHeader(
-  //   'Set-Cookie',
-  //   cookie.serialize('foo', 'bar', { httpOnly: true })
-  // );
-  // res.cookie('jwt', refreshToken, {
-  //   httpOnly: true,
-  //   // secure: true,
-  //   // signed: true,
-  //   maxAge: 24 * 60 * 60 * 1000,
-  // });
+  // Set refreshToken in a secure HTTP-only cookie
+  res.cookie('jwt', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // Only secure in production
+    sameSite: 'Strict',
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
+
+  // Send response
   res.status(StatusCodes.OK).json({
     name: user.firstName,
     token,
@@ -133,7 +133,7 @@ const LoginAdmin = async (req, res) => {
 const GetSingleAdmin = async (req, res) => {
   const { id } = req.params;
 
-  const findAmdin = AdminModel.findOne({ _id: id }).select({
+  const findAmdin = MemberModel.findOne({ _id: id }).select({
     password: 0,
     refreshToken: 0,
   });
@@ -158,7 +158,7 @@ const UpdateSingleAdmin = async (req, res) => {
     updateObject.email = email;
   }
 
-  await AdminModel.findOneAndUpdate({ _id: id }, updateObject, {
+  await MemberModel.findOneAndUpdate({ _id: id }, updateObject, {
     new: true,
   });
 
