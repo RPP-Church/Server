@@ -75,7 +75,7 @@ Admin.methods.CreateJWT = function () {
 Admin.methods.RefreshJWT = function () {
   return jwt.sign(
     { userId: this._id, name: this.firstName, role: this.permission },
-    process.env.REFRESH_TOKEN,
+    'ACCESS_TOKEN',
     {
       expiresIn: '7d',
     }

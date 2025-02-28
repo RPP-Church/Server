@@ -320,8 +320,10 @@ MembersSchema.methods.CreateJWT = function () {
 MembersSchema.methods.RefreshJWT = function () {
   return jwt.sign(
     { userId: this._id, name: this.firstName, role: this.permission },
-    process.env.JWT_REFRESH_SECRET,
-    { expiresIn: '7d' }
+    process.env.REFRESH_TOKEN,
+    {
+      expiresIn: '7d',
+    }
   );
 };
 
