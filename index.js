@@ -20,7 +20,7 @@ const streamRoute = require('./route/stream');
 const testimonyRoute = require('./route/testimony');
 const { scheduleCheckAgentTransaction } = require('./jobs/cronJobs.js');
 const swaggerUI = require('swagger-ui-express');
-const cron = require('node-cron');
+const callLogRoute = require('./route/callLog');
 const app = express();
 
 //Error handler
@@ -98,6 +98,7 @@ app.use('/api/v1/note', auth, noteRoute);
 app.use('/api/v1/archive', auth, archiveRoute);
 app.use('/api/v1/stream', auth, streamRoute);
 app.use('/api/v1/testimony', testimonyRoute);
+app.use('/api/v1/calls', auth, callLogRoute);
 
 //Middleware
 app.use(notFoundMiddleware);

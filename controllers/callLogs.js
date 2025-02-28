@@ -1,15 +1,5 @@
-const CallLog = require('../models/CallLog');
-const MembersModel = require('../model/members');
-const ActivitiesModel = require('../model/activities');
-const Permission = require('../model/config');
-const { default: mongoose } = require('mongoose');
-const CallLogsModel = require('../model/callLogs');
-const nodemailer = require('nodemailer');
-const moment = require('moment');
-
-// // Schedule report to run every Sunday at midnight
-// const schedule = require('node-schedule');
-// schedule.scheduleJob('0 0 * * 0', generateWeeklyCallReport); // Runs every Sunday
+const { BadRequestError } = require('../errors');
+const CallLog = require('../model/callLogs');
 
 const GetCallLog = async (req, res) => {
   try {
@@ -49,8 +39,13 @@ const UpdateCallStatus = async (req, res) => {
       return res.status(404).json({ message: 'Call log not found' });
     }
 
+    if (!callLog.updateStatus) {
+      throw new BadRequestError('Please initiate call before updating status');
+    }
+
     callLog.status = status;
     callLog.callTimestamp = new Date();
+    callLog.updateStatus = false;
     if (notes) callLog.notes = notes;
 
     await callLog.save();
@@ -61,7 +56,81 @@ const UpdateCallStatus = async (req, res) => {
   }
 };
 
+const UpdateUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userId = req.user.userId;
+
+    if (!id) {
+      return res.status(400).json({ message: 'Call Id missing' });
+    }
+
+    const allLog = await CallLog.find({
+      adminId: userId,
+    });
+
+    const findUpdate = allLog?.find((c) => c.updateStatus);
+
+    if (findUpdate?.id) {
+      throw new BadRequestError(
+        `You already started the call process for ${findUpdate.memberName}, please update status or redial before proceeding.`
+      );
+    }
+    const callLog = await CallLog.findOne({
+      _id: id,
+      adminId: userId,
+    });
+
+    if (!callLog) {
+      return res.status(404).json({ message: 'Call log not found' });
+    }
+
+    callLog.updateStatus = true;
+
+    await callLog.save();
+
+    res.status(200).json({ message: 'Call log updated successfully', callLog });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const RedialUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userId = req.user.userId;
+
+    if (!id) {
+      return res.status(400).json({ message: 'Call Id missing' });
+    }
+
+    const callLog = await CallLog.findOne({
+      _id: id,
+      adminId: userId,
+    });
+
+    if (!callLog) {
+      return res.status(404).json({ message: 'Call log not found' });
+    }
+
+    if (!callLog.updateStatus) {
+      throw new BadRequestError('Please dial call before redialing');
+    }
+
+    callLog.updateStatus = true;
+
+    await callLog.save();
+
+    res.status(200).json({ message: 'Call log updated successfully', callLog });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 module.exports = {
   GetCallLog,
   UpdateCallStatus,
+  UpdateUserStatus,
+  RedialUserStatus,
 };

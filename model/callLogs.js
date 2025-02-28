@@ -35,6 +35,12 @@ const CallLog = mongoose.Schema({
     type: Date,
     default: new Date(),
   },
+  gender: String,
+  updateStatus: {
+    type: Boolean,
+    default: false,
+  },
 });
+
 
 module.exports = mongoose.model('CallLog', CallLog);

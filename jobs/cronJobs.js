@@ -171,6 +171,7 @@ const AutoGenerateLog = async (overrideLogs = false) => {
       adminName: assignedAdmin.firstName + ' ' + assignedAdmin.lastName,
       memberName: member.firstName + ' ' + member.lastName,
       absentDate: activity.date,
+      gender: member.gender
     });
   });
 
@@ -271,7 +272,7 @@ const scheduleCheckAgentTransaction = () => {
     scheduled: true,
   });
   cron.schedule(
-    '0 12 * * Sunday',
+    '* * * * *',
     async () => {
       try {
         await AutoGenerateLog();
