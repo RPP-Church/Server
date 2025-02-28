@@ -27,7 +27,7 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies (Faster with pnpm)
-        run: pnpm install --frozen-lockfile
+        run: npm i
 
       - name: Create environment file
         run: |
