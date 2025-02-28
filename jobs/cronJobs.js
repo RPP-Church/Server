@@ -101,6 +101,90 @@ const generateWeeklyCallReport = async () => {
   console.log('Weekly report sent successfully.');
 };
 
+// const AutoGenerateLog = async (overrideLogs = false) => {
+//   const type = 'Absent';
+
+//   // Get the latest activity
+//   const activity = await ActivitiesModel.findOne().sort({ createdAt: -1 });
+
+//   //activity date is in this format MM/DD/YYYY
+//   //SO find every activity in the member records of attendance that falls within the MM/YYYY
+
+//   if (!activity || !activity._id) {
+//     throw new NotFoundError(`No activity found`);
+//   }
+
+//   let queryObject = { serviceId: activity._id, attendance: type };
+
+//   // Check if call logs already exist for this activity
+//   const existingLogs = await CallLogsModel.find({ activityId: activity._id });
+//   if (existingLogs.length > 0) {
+//     if (overrideLogs === true) {
+//       await CallLogsModel.deleteMany({ activityId: activity._id });
+//     } else {
+//       return existingLogs;
+//     }
+//   }
+
+//   // Get SYSTEM permission
+//   const perm = await Permission.findOne({ name: 'SYSTEM' });
+
+//   if (!perm) {
+//     throw new NotFoundError('SYSTEM permission not found');
+//   }
+
+//   // Find admins with SYSTEM permission and call_report access
+//   const admins = await MembersModel.find({
+//     permission: {
+//       $elemMatch: {
+//         permId: new mongoose.Types.ObjectId(perm._id),
+//         permissions: {
+//           $elemMatch: { name: 'call_report' },
+//         },
+//       },
+//     },
+//   });
+
+//   if (!admins.length) {
+//     throw new NotFoundError('No admins found with call_report permissions');
+//   }
+
+//   // Find absent members who have phone records
+//   const absentMembers = await MembersModel.find({
+//     attendance: { $elemMatch: queryObject },
+//     phone: { $exists: true, $ne: null }, // Ensures only members with phone numbers are included
+//   });
+
+//   if (!absentMembers.length) {
+//     return;
+//   }
+
+//   // Distribute absent members to admins
+//   let callLogs = [];
+//   absentMembers.forEach((member, index) => {
+//     const assignedAdmin = admins[index % admins.length]; // Distribute evenly
+
+//     callLogs.push({
+//       adminId: assignedAdmin._id,
+//       memberId: member._id,
+//       activityId: activity._id,
+//       status: 'Pending', // Can be updated when call is made
+//       assignedDate: new Date(),
+//       phone: member.phone,
+//       adminName: assignedAdmin.firstName + ' ' + assignedAdmin.lastName,
+//       memberName: member.firstName + ' ' + member.lastName,
+//       absentDate: activity.date,
+//       gender: member.gender
+//     });
+//   });
+
+//   // Save new logs
+//   await CallLogsModel.insertMany(callLogs);
+
+//   console.log('New call logs created successfully');
+//   return callLogs;
+// };
+
 const AutoGenerateLog = async (overrideLogs = false) => {
   const type = 'Absent';
 
@@ -111,7 +195,10 @@ const AutoGenerateLog = async (overrideLogs = false) => {
     throw new NotFoundError(`No activity found`);
   }
 
-  let queryObject = { serviceId: activity._id, attendance: type };
+  // Extract MM/YYYY from activity.date
+  const activityDate = new Date(activity.date);
+  const activityMonth = activityDate.getMonth() + 1; // getMonth() returns 0-11
+  const activityYear = activityDate.getFullYear();
 
   // Check if call logs already exist for this activity
   const existingLogs = await CallLogsModel.find({ activityId: activity._id });
@@ -146,11 +233,37 @@ const AutoGenerateLog = async (overrideLogs = false) => {
     throw new NotFoundError('No admins found with call_report permissions');
   }
 
-  // Find absent members who have phone records
-  const absentMembers = await MembersModel.find({
-    attendance: { $elemMatch: queryObject },
-    phone: { $exists: true, $ne: null }, // Ensures only members with phone numbers are included
+  // Query all members who have at least one 'Absent' record (without filtering month/year yet)
+  const allAbsentMembers = await MembersModel.find({
+    attendance: { $elemMatch: { attendance: type } }, // Ensure there's at least one absence
+    phone: { $exists: true, $ne: null }, // Only include members with phone numbers
   });
+
+  // Filter members and count absences in MM/YYYY with activity details
+  const absentMembers = allAbsentMembers
+    .map((member) => {
+      // Filter attendance records for the same MM/YYYY
+      const absencesInMonth = member.attendance.filter((att) => {
+        const attDate = new Date(att.date);
+        return (
+          att.attendance === type &&
+          attDate.getMonth() + 1 === activityMonth &&
+          attDate.getFullYear() === activityYear
+        );
+      });
+
+      return absencesInMonth.length > 0
+        ? {
+            ...member.toObject(),
+            absenceCount: absencesInMonth.length, // Count how many times absent in the month
+            absentActivities: absencesInMonth.map((att) => ({
+              date: att.date,
+              serviceName: att.serviceName,
+            })), // Store activity details
+          }
+        : null;
+    })
+    .filter(Boolean); // Remove members with no absences in the given MM/YYYY
 
   if (!absentMembers.length) {
     return;
@@ -171,7 +284,10 @@ const AutoGenerateLog = async (overrideLogs = false) => {
       adminName: assignedAdmin.firstName + ' ' + assignedAdmin.lastName,
       memberName: member.firstName + ' ' + member.lastName,
       absentDate: activity.date,
-      gender: member.gender
+      absenceCount: member.absenceCount, // Add the count of absences in the month
+      absentActivities: member.absentActivities, // Add the list of absent activities
+      gender: member.gender,
+      membershipType: member.membershipType,
     });
   });
 

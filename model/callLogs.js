@@ -40,7 +40,9 @@ const CallLog = mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  absenceCount: String,
+  absentActivities: [],
+  membershipType: String,
 });
-
 
 module.exports = mongoose.model('CallLog', CallLog);
