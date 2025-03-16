@@ -212,11 +212,14 @@ const CreateUser = async (req, res) => {
         doc.save();
         res
           .status(StatusCodes.CREATED)
-          .json({ mesage: `${doc.firstName} created` });
+          .json({ mesage: `${doc.firstName} created`, record: doc });
       } else {
         res
           .status(StatusCodes.CREATED)
-          .json({ mesage: `${doc.firstName} created for visitor` });
+          .json({
+            mesage: `${doc.firstName} created for visitor`,
+            record: doc,
+          });
       }
     })
     .catch((error) => {
