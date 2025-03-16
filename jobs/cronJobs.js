@@ -11,8 +11,15 @@ var path = require('path');
 const { default: mongoose } = require('mongoose');
 
 const generateWeeklyCallReport = async () => {
-  const startOfWeek = moment().startOf('week').toDate(); // Sunday
-  const endOfWeek = moment().endOf('week').toDate(); // Saturday
+  console.log('called');
+  const startOfWeek = moment()
+    .subtract(1, 'weeks')
+    .day(0)
+    .startOf('day')
+    .toDate(); // Last Sunday
+  const endOfWeek = moment().subtract(1, 'weeks').day(6).endOf('day').toDate();
+
+  console.log(startOfWeek, endOfWeek);
 
   const callLogs = await CallLogsModel.aggregate([
     {
@@ -25,13 +32,13 @@ const generateWeeklyCallReport = async () => {
         _id: '$adminId',
         totalCalls: { $sum: 1 },
         completedCalls: {
-          $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] },
+          $sum: { $cond: [{ $eq: ['$status', 'Completed'] }, 1, 0] },
         },
         failedCalls: {
-          $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] },
+          $sum: { $cond: [{ $eq: ['$status', 'Failed'] }, 1, 0] },
         },
         pendingCalls: {
-          $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] },
+          $sum: { $cond: [{ $eq: ['$status', 'Pending'] }, 1, 0] },
         }, // New Pending Calls
       },
     },
@@ -55,6 +62,8 @@ const generateWeeklyCallReport = async () => {
       },
     },
   ]);
+
+  console.log(callLogs);
 
   if (!callLogs.length) {
     return;
@@ -86,8 +95,9 @@ const generateWeeklyCallReport = async () => {
 
   emailBody += `</table>`;
 
+  //'olufemioludotun2020@gmail.com'
   const msg = {
-    to: ['okoromivic@gmail.com', 'olufemioludotun2020@gmail.com'],
+    to: ['okoromivictorsunday@gmail.com'],
     from: 'okoromivic@gmail.com',
     subject: '📊 Weekly Call Report',
     html: emailBody,
@@ -384,9 +394,17 @@ const AutoUpdateMember = async ({ todayDay }) => {
 };
 // Schedule jobs
 const scheduleCheckAgentTransaction = () => {
-  cron.schedule('0 09 * * Sunday', generateWeeklyCallReport, {
-    scheduled: true,
-  });
+  cron.schedule(
+    '45 06 * * Sunday',
+    async () => {
+      try {
+        await generateWeeklyCallReport();
+      } catch (error) {
+        console.error('Error in generateWeeklyCallReport:', error);
+      }
+    },
+    { scheduled: true }
+  );
   cron.schedule(
     '0 11 * * Sunday',
     async () => {
