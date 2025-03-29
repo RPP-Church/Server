@@ -95,7 +95,7 @@ const generateWeeklyCallReport = async () => {
 
   emailBody += `</table>`;
   const msg = {
-    to: ['okoromivictorsunday@gmail.com','olufemioludotun2020@gmail.com' ],
+    to: ['okoromivictorsunday@gmail.com', 'olufemioludotun2020@gmail.com'],
     from: 'okoromivic@gmail.com',
     subject: '📊 Weekly Call Report',
     html: emailBody,
@@ -209,14 +209,16 @@ const AutoGenerateLog = async (overrideLogs = false) => {
   const activityYear = activityDate.getFullYear();
 
   // Check if call logs already exist for this activity
-  const existingLogs = await CallLogsModel.find({ activityId: activity._id });
-  if (existingLogs.length > 0) {
-    if (overrideLogs === true) {
-      await CallLogsModel.deleteMany({ activityId: activity._id });
-    } else {
-      return existingLogs;
-    }
-  }
+  // const existingLogs = await CallLogsModel.find({});
+  // if (existingLogs.length > 0) {
+  await CallLogsModel.deleteMany({});
+
+  // if (overrideLogs === true) {
+  //   await CallLogsModel.deleteMany({ activityId: activity._id });
+  // } else {
+  //   return existingLogs;
+  // }
+  // }
 
   // Get SYSTEM permission
   const perm = await Permission.findOne({ name: 'SYSTEM' });
