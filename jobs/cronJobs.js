@@ -302,7 +302,7 @@ const AutoGenerateLog = async (overrideLogs = false) => {
   });
 
   // Save new logs
-  // await CallLogsModel.insertMany(callLogs);
+  await CallLogsModel.insertMany(callLogs);
 
   console.log(callLogs, 'New call logs created successfully');
   return callLogs;
