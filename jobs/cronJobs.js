@@ -205,7 +205,7 @@ const AutoGenerateLog = async (overrideLogs = false) => {
 
   // Extract MM/YYYY from activity.date
   const activityDate = new Date(activity.date);
-  const activityMonth = activityDate.getMonth() + 1; // getMonth() returns 0-11
+  const activityMonth = activityDate.getMonth() + 1;
   const activityYear = activityDate.getFullYear();
 
   // Check if call logs already exist for this activity
@@ -245,7 +245,7 @@ const AutoGenerateLog = async (overrideLogs = false) => {
 
   // Query all members who have at least one 'Absent' record (without filtering month/year yet)
   const allAbsentMembers = await MembersModel.find({
-    attendance: { $elemMatch: { attendance: type } }, // Ensure there's at least one absence
+    attendance: { $elemMatch: { attendance: type, serviceId: activity._id } }, // Ensure there's at least one absence
     phone: { $exists: true, $ne: null }, // Only include members with phone numbers
   });
 
@@ -302,9 +302,9 @@ const AutoGenerateLog = async (overrideLogs = false) => {
   });
 
   // Save new logs
-  await CallLogsModel.insertMany(callLogs);
+  // await CallLogsModel.insertMany(callLogs);
 
-  console.log('New call logs created successfully');
+  console.log(callLogs, 'New call logs created successfully');
   return callLogs;
 };
 
