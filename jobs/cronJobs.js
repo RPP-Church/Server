@@ -16,7 +16,7 @@ const generateWeeklyCallReport = async () => {
     .subtract(1, 'weeks')
     .day(0)
     .startOf('day')
-    .toDate(); // Last Sunday
+    .toDate();
   const endOfWeek = moment().subtract(1, 'weeks').day(6).endOf('day').toDate();
 
   console.log(startOfWeek, endOfWeek);
@@ -94,6 +94,8 @@ const generateWeeklyCallReport = async () => {
   });
 
   emailBody += `</table>`;
+
+  //''
   const msg = {
     to: ['okoromivictorsunday@gmail.com', 'olufemioludotun2020@gmail.com'],
     from: 'okoromivic@gmail.com',
@@ -404,9 +406,9 @@ const scheduleCheckAgentTransaction = () => {
       }
     },
     { scheduled: true }
-  )
+  );
   cron.schedule(
-    '27 13 * * Monday',
+    '00 12 * * Sunday',
     async () => {
       try {
         await AutoGenerateLog();
