@@ -23,9 +23,7 @@ const generateWeeklyCallReport = async () => {
 
   const callLogs = await CallLogsModel.aggregate([
     {
-      $match: {
-        assignedDate: { $gte: startOfWeek, $lte: endOfWeek },
-      },
+      $match: {},
     },
     {
       $group: {
@@ -95,9 +93,9 @@ const generateWeeklyCallReport = async () => {
 
   emailBody += `</table>`;
 
-  //''
+  //'olufemioludotun2020@gmail.com'
   const msg = {
-    to: ['okoromivictorsunday@gmail.com', 'olufemioludotun2020@gmail.com'],
+    to: ['okoromivictorsunday@gmail.com'],
     from: 'okoromivic@gmail.com',
     subject: '📊 Weekly Call Report',
     html: emailBody,
@@ -397,7 +395,7 @@ const AutoUpdateMember = async ({ todayDay }) => {
 // Schedule jobs
 const scheduleCheckAgentTransaction = () => {
   cron.schedule(
-    '00 09 * * Saturday',
+    '0 12 * * 3,5',
     async () => {
       try {
         await generateWeeklyCallReport();

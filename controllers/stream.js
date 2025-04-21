@@ -47,7 +47,6 @@ const CreateStream = async (req, res) => {
   const youtube = google.youtube('v3');
   const { title, description, scheduledStartTime, access_token } = req.body;
 
-
   oAuth2Client.setCredentials({ access_token });
   console.log('OAuth2Client credentials set successfully');
   try {
@@ -109,8 +108,54 @@ const CreateStream = async (req, res) => {
   }
 };
 
+async function FetchPastLiveStreams(req, res) {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); // e.g. 2025-04-01
+
+  const publishedAfter = startOfMonth.toISOString();
+  const publishedBefore = now.toISOString();
+
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=completed&type=video&publishedAfter=${publishedAfter}&publishedBefore=${publishedBefore}&maxResults=10&key=${API_KEY}`;
+
+  try {
+    const response = await axios.get(url);
+    const data = await response.data;
+
+    if (data.items && data.items.length > 0) {
+      const options = data.items.map((item, index) => {
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const publishedAt = item.snippet.publishedAt;
+        const url = `https://www.youtube.com/watch?v=${videoId}`;
+
+        return {
+          title,
+          publishedAt,
+          url,
+        };
+      });
+
+
+      res.status(200).json({
+        message: `Found ${data.items.length} past live stream(s)`,
+        data: options,
+      });
+    } else {
+      res.status(200).json({
+        message: 'No past live streams found in the last 30 days.',
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: error.messag || 'Error fetching past live streams',
+      error: error.messag,
+    });
+  }
+}
+
 module.exports = {
   GetStreamUrl,
   GetAuth,
   CreateStream,
+  FetchPastLiveStreams,
 };
