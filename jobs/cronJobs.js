@@ -93,9 +93,9 @@ const generateWeeklyCallReport = async () => {
 
   emailBody += `</table>`;
 
-  //'olufemioludotun2020@gmail.com'
+  //''
   const msg = {
-    to: ['okoromivictorsunday@gmail.com'],
+    to: ['okoromivictorsunday@gmail.com', 'olufemioludotun2020@gmail.com'],
     from: 'okoromivic@gmail.com',
     subject: '📊 Weekly Call Report',
     html: emailBody,
