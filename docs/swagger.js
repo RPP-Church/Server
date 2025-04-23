@@ -27,7 +27,7 @@ const options = {
         description: 'Local server',
       },
       {
-        url: 'https://rppserver.nmtsconsulting.com/api/v1',
+        url: 'https://rppserver.resurrectionpowerparish.ng/api/v1',
         description: 'Live server',
       },
     ],
