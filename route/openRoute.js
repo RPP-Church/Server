@@ -1,6 +1,9 @@
 const { CreateUser } = require('../controllers/members');
 const { GetDepartments } = require('../controllers/department');
-const { FetchPastLiveStreams } = require('../controllers/stream');
+const {
+  FetchPastLiveStreams,
+  GetScheduledStreams,
+} = require('../controllers/stream');
 const express = require('express');
 
 const router = express.Router();
@@ -13,8 +16,29 @@ const router = express.Router();
  *     security:
  *     - bearerAuth: []
  *     tags:
- *     - Get Past Streams
+ *     - Youtube Streams
  *     summary: Get Live Past Streams Videos
+ *     responses:
+ *      200:
+ *        description: Fetched Successfully
+ *      400:
+ *        description: Bad Request
+ *      404:
+ *        description: Not Found
+ *      500:
+ *        description: Server Error
+ */
+
+/** GET Methods */
+/**
+ * @openapi
+ * '/open/livestreams':
+ *  get:
+ *     security:
+ *     - bearerAuth: []
+ *     tags:
+ *     - Youtube Streams
+ *     summary: Get Scheduled Streams Videos
  *     responses:
  *      200:
  *        description: Fetched Successfully
@@ -29,5 +53,6 @@ const router = express.Router();
 router.route('/createuser').post(CreateUser);
 router.route('/department').get(GetDepartments);
 router.route('/pastlivestreams').get(FetchPastLiveStreams);
+router.route('/livestreams').get(GetScheduledStreams);
 
 module.exports = router;
