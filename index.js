@@ -18,6 +18,7 @@ const noteRoute = require('./route/note');
 const archiveRoute = require('./route/archive');
 const streamRoute = require('./route/stream');
 const testimonyRoute = require('./route/testimony');
+const notificationRoute = require('./route/notification');
 const { scheduleCheckAgentTransaction } = require('./jobs/cronJobs.js');
 const swaggerUI = require('swagger-ui-express');
 const callLogRoute = require('./route/callLog');
@@ -99,6 +100,7 @@ app.use('/api/v1/archive', auth, archiveRoute);
 app.use('/api/v1/stream', auth, streamRoute);
 app.use('/api/v1/testimony', testimonyRoute);
 app.use('/api/v1/calls', auth, callLogRoute);
+app.use('/api/v1/notification', notificationRoute);
 
 //Middleware
 app.use(notFoundMiddleware);

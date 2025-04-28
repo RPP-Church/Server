@@ -4,6 +4,7 @@ const { StatusCodes } = require('http-status-codes');
 const SendEmail = require('../middleware/sendEmail.js');
 const MemberModel = require('../model/members.js');
 const Role = require('../model/config.js');
+const SaveNotification = require('../middleware/saveToken.js');
 
 const CreateAdmin = async (req, res) => {
   const { phone, password } = req.body;
@@ -75,7 +76,7 @@ const CreateAdmin = async (req, res) => {
 };
 
 const LoginAdmin = async (req, res) => {
-  const { phone, password } = req.body;
+  const { phone, password, deviceToken } = req.body;
 
   if (!phone || !password) {
     throw new BadRequestError('Please provide phone and password');
@@ -105,6 +106,10 @@ const LoginAdmin = async (req, res) => {
   // Generate tokens
   const token = user.CreateJWT();
   const refreshToken = user.RefreshJWT();
+
+  if (deviceToken) {
+    await SaveNotification({ user, deviceToken });
+  }
 
   // Store refreshToken in the database
   await MemberModel.findByIdAndUpdate(
