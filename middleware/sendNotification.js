@@ -1,5 +1,11 @@
 const NotificationTokenSchema = require('../model/notificationToken');
-const admin = require('../middleware/firebaseAdmin');
+
+const admin = require('firebase-admin');
+const serviceAccount = require('../resurrection-power-parish-firebase-adminsdk-fbsvc-7d3ce0a628.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 const SendNotification = async ({ searchObject, title, body }) => {
   try {
@@ -15,21 +21,20 @@ const SendNotification = async ({ searchObject, title, body }) => {
     };
 
     if (tokens && tokens.length > 0) {
-      admin
-        .messaging()
-        .send(message)
-        .then((response) => {
-          console.log(
-            response.successCount + ' messages were sent successfully'
-          );
-        })
-        .catch((error) => {
-          console.error('Error sending message:', error);
-        });
+      const messages = tokens.map((token) => ({
+        token, // ✅ single token
+        notification: {
+          title,
+          body,
+        },
+      }));
+
+      const response = await admin.messaging().sendEach(messages);
+
+      console.log(`${response.successCount} messages were sent successfully`);
     } else {
       console.log('No tokens provided.');
     }
-    console.log(response.successCount + ' messages were sent successfully');
   } catch (error) {
     console.error('Error sending message:', error);
   }
