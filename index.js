@@ -108,21 +108,7 @@ app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT || 5000;
 
-// const scheduleTask = async () => {
-//   const task = cron.schedule(
-//     // '29 15 * * Sunday',
-//     '* * * * *',
-//     () => {
-//       // const activityDate = new Date().toISOString()?.slice(0, 10);
-//        AutoUpdateMember({ activityDate });
-//       AutoGenerateAttendance();
-//     },
-//     {
-//       scheduled: false,
-//     }
-//   );
-//   task.start();
-// };
+
 
 const start = async () => {
   try {

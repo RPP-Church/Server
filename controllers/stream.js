@@ -179,7 +179,18 @@ const GetStreamUrl = async (req, res) => {
     const response = await axios.get(url);
     if (response.data.items.length > 0) {
       const liveVideoId = response.data.items[0].id.videoId;
-      res.json({ videoId: liveVideoId });
+      const title = response.data.items[0].snippet.title;
+      const publishedAt = response.data.items[0].snippet.publishedAt;
+      const description = response.data.items[0].snippet.description;
+      const url = `https://www.youtube.com/watch?v=${liveVideoId}`;
+      res.json({
+        data: {
+          title,
+          publishedAt,
+          description,
+          url,
+        },
+      });
     } else {
       res.json({ videoId: null, message: 'No live stream found' });
     }
@@ -290,7 +301,8 @@ const GetAuth = async (req, res) => {
 
 async function FetchPastLiveStreams(req, res) {
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); // e.g. 2025-04-01
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), now.getDay() - 7); // e.g. 2025-04-01
+
 
   const publishedAfter = startOfMonth.toISOString();
   const publishedBefore = now.toISOString();
@@ -343,6 +355,7 @@ const GetScheduledStreams = async (req, res) => {
     });
 
     const broadcasts = response.data.items;
+
 
     if (broadcasts.length > 0) {
       const upcoming = broadcasts.map((b) => ({
